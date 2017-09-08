@@ -6,10 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="ProjectBecky" />
+        <module name="game-backend" />
+        <module name="game-frontend" />
+        <module name="gamebackend" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="game-backend" target="1.5" />
+      <module name="game-frontend" target="1.5" />
+      <module name="gamebackend" target="1.5" />
       <module name="ProjectBecky" target="1.5" />
     </bytecodeTargetLevel>
   </component>
