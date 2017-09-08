@@ -12,22 +12,24 @@
     <artifactId>game-frontend</artifactId>
     <version>${parent.version}</version>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>typescript-maven-plugin</id>
-            <url>https://raw.github.com/ppedregal/typescript-maven-plugin/master/repo</url>
-        </pluginRepository>
-    </pluginRepositories>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <build>
+        <sourceDirectory>src/main/ts</sourceDirectory>
         <plugins>
             <plugin>
-                <groupId>com.ppedregal.typescript</groupId>
-                <artifactId>typescript-maven-plugin</artifactId>
-                <configuration>
-                    <sourceDirectory>src/main/ts</sourceDirectory>
-                    <targetDirectory>target/ts</targetDirectory>
-                </configuration>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>never</phase>
+                        <configuration>
+                            <classifier>unwanted</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

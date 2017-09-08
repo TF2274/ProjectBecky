@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/ProjectBecky.iml" filepath="$PROJECT_DIR$/ProjectBecky.iml" />
       <module fileurl="file://$PROJECT_DIR$/game-backend/game-backend.iml" filepath="$PROJECT_DIR$/game-backend/game-backend.iml" />
       <module fileurl="file://$PROJECT_DIR$/game-frontend/game-frontend.iml" filepath="$PROJECT_DIR$/game-frontend/game-frontend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/game-backend/gamebackend.iml" filepath="$PROJECT_DIR$/game-backend/gamebackend.iml" />
     </modules>
   </component>
 </project>
