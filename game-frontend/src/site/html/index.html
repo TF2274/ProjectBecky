@@ -4,7 +4,51 @@
     <meta charset="UTF-8">
     <title>Project Becky</title>
 </head>
-<body>
 
+<body>
+    <style>
+        html, body {
+            height: 90%;
+        }
+
+        body {
+            background-image: url("http://3.bp.blogspot.com/-tnYmE6EQkMY/Udz5rgKIOaI/AAAAAAAAR74/LhO928bQ3l0/s1600/Stupidity-at-its-best-funny-photos+(1).jpg");
+            background-color: #000000;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+
+        #input {
+            width: 20%;
+            margin-top: 20%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #input #username {
+            padding: 3px 0px;
+            width: 100%;
+            margin: auto;
+        }
+
+        #input #logon {
+            padding: 3px;
+            width: 100%;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+    <div id="form">
+        <div id="input">
+            <div id="join_message" hidden>
+                Join Message
+            </div>
+            <input id="username" type="text">
+            <div><button id="logon">Join</button></div>
+        </div>
+    </div>
+    <div id="game" hidden>
+    </div>
 </body>
 </html>

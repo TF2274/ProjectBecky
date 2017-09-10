@@ -5,7 +5,7 @@ package com.becky;
  * Created by chunsinger on 9/8/2017.
  */
 public class Becky {
-    public static void main(final String... args) {
+    public static void main(final String[] args) {
 
     }
 }
