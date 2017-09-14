@@ -32,7 +32,8 @@ class ClientPlayer implements Player, Updateable {
     }
 
     public setPosition(x: number, y: number): void {
-        this.position = new Point(x, y);
+        this.position.setX(x);
+        this.position.setY(y);
     }
 
     public getAngle(): number {
@@ -54,8 +55,20 @@ class ClientPlayer implements Player, Updateable {
         this.moveRight = right;
     }
 
-    public draw(context: CanvasRenderingContext2D): void {
-        //TODO: Draw player
+    public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
+        //the current player is simply drawn in the center of the screen always. Never elsewhere
+        //other players will be drawn in the proper position.
+
+        //draw a red circle
+        //in phase 2 draw an image
+        context.beginPath();
+        context.arc(context.canvas.width/2, context.canvas.height/2, 32, 0, 2*Math.PI, false);
+        context.fillStyle = "green";
+        context.fill();
+        context.lineWidth = 5;
+        context.strokeStyle = "#003300";
+        context.stroke();
+        context.closePath();
     }
 
     public update(elapsedTime: number): void {

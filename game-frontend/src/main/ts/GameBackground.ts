@@ -51,7 +51,7 @@ class GameBackground implements Renderable {
         this.player = player;
     }
 
-    public draw(context: CanvasRenderingContext2D): void {
+    public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
         let playerX : number = 0;
         let playerY : number = 0;
 
