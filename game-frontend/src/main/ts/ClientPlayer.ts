@@ -126,6 +126,5 @@ class ClientPlayer implements Player, Updateable {
 
     private handleBorderCollision(): void {
         //TODO: Handle collisions with the world border (blocked phase 1)
-
     }
 }
