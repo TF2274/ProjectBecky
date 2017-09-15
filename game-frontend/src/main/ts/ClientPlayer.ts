@@ -1,11 +1,11 @@
-/// <reference path='Player.ts'/>
-/// <reference path='Updateable.ts'/>
-
+import {Player} from "./Player";
+import {Updateable} from "./Updateable";
+import {Point} from "./Point";
 /**
  * Represents the current player. The avatar being controlled by the user.
  * See OpponentPlayer for the other players.
  */
-class ClientPlayer implements Player, Updateable {
+export class ClientPlayer implements Player, Updateable {
     private acceleration: number = 5;
     private max_velocity: number = 25;
 
@@ -16,11 +16,16 @@ class ClientPlayer implements Player, Updateable {
     private moveLeft: boolean;
     private moveRight: boolean;
     private velocity: Point;
+    private username: string;
 
-    constructor(x: number = 0, y: number = 0, angle: number = 0) {
+    constructor(x: number = 0, y: number = 0, angle: number = 0, username: string) {
         this.position = new Point(x, y);
         this.angle = angle;
         this.velocity = new Point(0, 0);
+    }
+
+    public getUsername(): string {
+        return this.username;
     }
 
     public getXPosition(): number {

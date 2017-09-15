@@ -1,16 +1,17 @@
-/// <reference path='Renderable.ts'/>
-/// <reference path='Player.ts'/>
-/// <reference path='Point.ts'/>
+import {Renderable} from "./Renderable";
+import {Player} from "./Player";
+import {Point} from "./Point";
 
-class GameBackground implements Renderable {
+/**
+ * Represents, and is responsible for the background of the game screen as well as the world border.
+ */
+export class GameBackground implements Renderable {
     private gridSize: number = 16; //default grid size is 16 pixels
     private lineThickness: number = 1;
     private borderThickness: number = 4;
     private borderColor: string = "#000000";
-    private gridColor: string = "#ECECEC";
+    private gridColor: string = "#a8a8a8";
 
-    private width: number;
-    private height: number;
     private player: Player;
     private viewWidth: number;
     private viewHeight: number;
@@ -19,24 +20,17 @@ class GameBackground implements Renderable {
 
     /**
      * Creates a new GameBackground object
-     * @param image The image to render
-     * @param width The width to scale the image to
-     * @param height The height to scale the image to
      * @param viewWidth The width of the viewport
      * @param viewHeight The height of the viewport
      * @param worldWidth The width of the world itself.
      * @param worldHeight The height of the world itself.
      * @constructor
      */
-    constructor(width: number,
-                height: number,
-                viewWidth: number,
+    constructor(viewWidth: number,
                 viewHeight: number,
                 worldWidth: number,
                 worldHeight: number) {
         this.player = null;
-        this.width = width;
-        this.height = height;
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
         this.worldWidth = worldWidth;

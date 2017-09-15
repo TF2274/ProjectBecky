@@ -1,7 +1,7 @@
 /**
  * This class represents a simple x,y location
  */
-class Point {
+export class Point {
     private x: number;
     private y: number;
 

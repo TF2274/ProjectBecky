@@ -1,13 +1,22 @@
-/// <reference path='Player.ts'/>
-/// <reference path='Point.ts'/>
-/// <reference path='Updateable.ts'/>
+import {Player} from "./Player";
+import {Updateable} from "./Updateable";
+import {Point} from "./Point";
 
-class OpponentPlayer implements Player, Updateable {
+/**
+ * Represents another player. Not the player on this client.
+ */
+export class OpponentPlayer implements Player, Updateable {
     private position : Point;
     private angle: number;
+    private username: string;
 
-    constructor() {
+    constructor(username: string) {
         this.position = new Point();
+        this.username = username;
+    }
+
+    public getUsername(): string {
+        return this.username;
     }
 
     public getXPosition(): number {

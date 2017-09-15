@@ -1,10 +1,14 @@
-/// <reference path='Renderable.ts'/>
-/// <reference path='Point.ts'/>
+import {Renderable} from "./Renderable";
 
 /**
  * Represents any player. Either the current player or any opponent player.
  */
-interface Player extends Renderable {
+export interface Player extends Renderable {
+    /**
+     * Gets the username of the player
+     */
+    getUsername(): string;
+
     /**
      * Gets the current global X position of the player.
      */

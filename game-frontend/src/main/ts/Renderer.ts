@@ -1,10 +1,10 @@
+import {Renderable} from "./Renderable";
+import {Point} from "./Point";
+
 /**
  * This is the interface for any renderer classes.
  */
-
-/// <reference path='Renderable.ts'/>
-
-interface Renderer {
+export interface Renderer {
     /**
      * Adds a renderable object to the renderer. All added objects will rendered when
      * the draw method is called.
@@ -18,6 +18,8 @@ interface Renderer {
      * @return Returns true if the renderable was removed, or false if it was never added to begin with.
      */
     removeRenderable(arg: Renderable): boolean;
+
+    updateScreenOrigin(screenOrigin: Point): void;
 
     /**
      * Draws all added renderables to the screen.
