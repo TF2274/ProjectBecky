@@ -1,18 +1,22 @@
 import {Player} from "./Player";
 import {Updateable} from "./Updateable";
 import {Point} from "./Point";
+import {GameEntity} from "./GameEntity";
+import Set from "typescript-collections/dist/lib/Set";
 
 /**
  * Represents another player. Not the player on this client.
  */
-export class OpponentPlayer implements Player, Updateable {
+export class OpponentPlayer implements Player, Updateable, GameEntity {
     private position : Point;
     private angle: number;
     private username: string;
+    private parent: GameEntity;
 
-    constructor(username: string) {
+    constructor(parent: GameEntity, username: string) {
         this.position = new Point();
         this.username = username;
+        this.parent = parent;
     }
 
     public getUsername(): string {
@@ -38,6 +42,14 @@ export class OpponentPlayer implements Player, Updateable {
     public setPosition(x: number, y: number): void {
         this.position.setX(x);
         this.position.setY(y);
+    }
+
+    public getParentEntity(): GameEntity {
+        return this.parent;
+    }
+
+    public getChildEntities(): Set<GameEntity> {
+        return new Set();
     }
 
     public update(elapsedTime: number) : void {

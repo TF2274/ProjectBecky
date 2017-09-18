@@ -2,6 +2,7 @@
 <project version="4">
   <component name="TypeScriptCompiler">
     <option name="isCompilerEnabled" value="true" />
+    <option name="nodeInterpreterTextField" value="$PROJECT_DIR$/../../node-v6.11.3-win-x64/node" />
     <option name="hasOutDirectory" value="true" />
     <option name="outDirectory" value="game-frontend/src/site/js" />
   </component>

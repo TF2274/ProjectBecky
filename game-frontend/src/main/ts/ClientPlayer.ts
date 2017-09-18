@@ -1,15 +1,18 @@
 import {Player} from "./Player";
 import {Updateable} from "./Updateable";
 import {Point} from "./Point";
+import {GameEntity} from "./GameEntity";
+import Set from "typescript-collections/dist/lib/Set";
 /**
  * Represents the current player. The avatar being controlled by the user.
  * See OpponentPlayer for the other players.
  */
-export class ClientPlayer implements Player, Updateable {
-    private acceleration: number = 5;
-    private max_velocity: number = 25;
+export class ClientPlayer implements Player, Updateable, GameEntity {
+    private acceleration: number = 20;
+    private max_velocity: number = 50;
 
     private position: Point;
+    private parent: GameEntity;
     private angle: number; //radian angle player is aiming towards
     private moveUp: boolean;
     private moveDown: boolean;
@@ -18,10 +21,11 @@ export class ClientPlayer implements Player, Updateable {
     private velocity: Point;
     private username: string;
 
-    constructor(x: number = 0, y: number = 0, angle: number = 0, username: string) {
+    constructor(parent: GameEntity, x: number = 0, y: number = 0, angle: number = 0, username: string) {
         this.position = new Point(x, y);
         this.angle = angle;
         this.velocity = new Point(0, 0);
+        this.parent = parent;
     }
 
     public getUsername(): string {
@@ -53,11 +57,28 @@ export class ClientPlayer implements Player, Updateable {
         //TODO: Aim player towards mouse (phase 2)
     }
 
-    public setMovementKeysPressed(up: boolean, down: boolean, left: boolean, right: boolean) {
+    public setMoveUp(up: boolean): void {
         this.moveUp = up;
+    }
+
+    public setMoveDown(down: boolean): void {
         this.moveDown = down;
+    }
+
+    public setMoveLeft(left: boolean): void {
         this.moveLeft = left;
+    }
+
+    public setMoveRight(right: boolean): void {
         this.moveRight = right;
+    }
+
+    public getChildEntities(): Set<GameEntity> {
+        return new Set();
+    }
+
+    public getParentEntity(): GameEntity {
+        return this.parent;
     }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
