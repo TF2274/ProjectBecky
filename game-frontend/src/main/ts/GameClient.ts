@@ -5,7 +5,7 @@ import {GameBackground} from "./GameBackground";
 import {GameEntity} from "./GameEntity";
 import {OpponentPlayer} from "./OpponentPlayer";
 import Set from "typescript-collections/dist/lib/Set";
-import {InputStateChange} from "./InputStateChange";
+import {InputStateChange} from "./networked/InputStateChange";
 
 /**
  * This class is the base class to the game client itself.
