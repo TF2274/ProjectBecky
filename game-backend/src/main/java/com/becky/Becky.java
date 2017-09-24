@@ -1,9 +1,9 @@
 package com.becky;
 
-import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
-
-import java.awt.image.BufferStrategy;
+import java.awt.*;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * The main application class of the game.
@@ -14,6 +14,7 @@ public class Becky implements Runnable {
     private boolean running = false;
     private Thread thread;
     public final static int WIDTH = 640, HEIGHT = WIDTH / 12 * 9;
+    private HashMap<String, Player> players;
 
     public Becky() {
         new Window(WIDTH, HEIGHT, "Project Becky", this);
@@ -30,19 +31,17 @@ public class Becky implements Runnable {
     public void start() {
         thread = new Thread(this);
         thread.start();
-        Player player = new Player();
+        addPlayer();
         running = true;
     }
 
-    private void tick()
-    {
+    private void tick() {
 
     }
 
     // if elapsedTime < 50
     //  thread.sleep(47 - elapsedTime);
-    public void run()
-    {
+    public void run() {
         long lastTime = System.currentTimeMillis();
         double amountOfTicks = 20.0;
         double ns = 1000000000 / amountOfTicks;
@@ -73,6 +72,20 @@ public class Becky implements Runnable {
         }
     }
 
+    public String addPlayer(){
+        int username = (int) Math.random()*10000;
+        String uN = Integer.toString(username);
+        Point point = new Point((int) Math.random()*50, (int)Math.random()*50)
+        Player player = new Player(uN, point, (float)Math.random()*100, (float)Math.random()*100, (float)Math.random()*100, (float)Math.random()*2);
+        players.put(uN, player);
+        return
+    }
 
+    public Player getPlayerUsername(String userName) {
+        return players.get(userName);
+    }
 
+    public void removePlayer(String userName){
+
+    }
 }
