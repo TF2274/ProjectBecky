@@ -13,13 +13,8 @@ public class Player {
     private float accelaration;
     private float max_velocity = 50;
 
-    public Player(String playerUsername, Point point, float x_velocity, float y_velocity, float accelaration, float max_velocity) {
+    public Player(String playerUsername) {
         this.playerUsername = playerUsername;
-        this.position = position;
-        this.x_velocity = x_velocity;
-        this.y_velocity = y_velocity;
-        this.accelaration = accelaration;
-        this.max_velocity = max_velocity;
     }
 
     public String getPlayerUsername() {
