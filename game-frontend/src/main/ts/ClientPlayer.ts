@@ -74,7 +74,7 @@ export class ClientPlayer implements Player, Updateable, GameEntity {
     }
 
     public getChildEntities(): Set<GameEntity> {
-        return new Set();
+        return new Set<GameEntity>();
     }
 
     public getParentEntity(): GameEntity {

@@ -49,7 +49,7 @@ export class OpponentPlayer implements Player, Updateable, GameEntity {
     }
 
     public getChildEntities(): Set<GameEntity> {
-        return new Set();
+        return new Set<GameEntity>();
     }
 
     public update(elapsedTime: number) : void {

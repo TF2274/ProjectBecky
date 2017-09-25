@@ -11,7 +11,7 @@ import {InputStateChange} from "./networked/InputStateChange";
  * This class is the base class to the game client itself.
  * This class ultimately contains everything.
  */
-class GameClient implements GameEntity {
+export class GameClient implements GameEntity {
     //keep these the same as the server. Might have server send message to client with these values in future
     private worldWidth: number = 10000;
     private worldHeight: number = 10000;
@@ -45,7 +45,7 @@ class GameClient implements GameEntity {
     }
 
     public getChildEntities(): Set<GameEntity> {
-        let entities: Set<GameEntity> = new Set();
+        let entities: Set<GameEntity> = new Set<GameEntity>();
         entities.add(this.player);
         for(let i: number = 0; i < this.opponents.size(); i++) {
             entities.add(this.opponents[i]);
