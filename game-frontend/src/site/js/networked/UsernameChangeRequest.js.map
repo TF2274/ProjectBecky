@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "UsernameChangeRequest.js",
+  "sourceRoot": "",
+  "sources": [
+    "../../../main/ts/networked/UsernameChangeRequest.ts"
+  ],
+  "names": [],
+  "mappings": ";;AAAA;;GAEG;AACH;IAAA;IAIA,CAAC;IAAD,4BAAC;AAAD,CAAC,AAJD,IAIC;AAJY,sDAAqB"
+}

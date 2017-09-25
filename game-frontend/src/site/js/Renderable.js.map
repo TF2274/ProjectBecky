@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Renderable.js",
+  "sourceRoot": "",
+  "sources": [
+    "../../main/ts/Renderable.ts"
+  ],
+  "names": [],
+  "mappings": ""
+}

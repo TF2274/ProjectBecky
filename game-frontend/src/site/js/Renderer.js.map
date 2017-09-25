@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "Renderer.js",
+  "sourceRoot": "",
+  "sources": [
+    "../../main/ts/Renderer.ts"
+  ],
+  "names": [],
+  "mappings": ""
+}

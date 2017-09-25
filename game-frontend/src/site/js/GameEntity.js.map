@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "GameEntity.js",
+  "sourceRoot": "",
+  "sources": [
+    "../../main/ts/GameEntity.ts"
+  ],
+  "names": [],
+  "mappings": ""
+}
