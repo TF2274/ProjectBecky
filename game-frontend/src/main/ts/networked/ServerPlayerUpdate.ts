@@ -6,6 +6,7 @@ import {Point} from "../Point";
 export class ServerPlayerUpdate {
     private posX: number;
     private posY: number;
+    private playerName: string;
 
     //TODO: Phase 2 uncomment the following fields
     //private accelX: number;
@@ -15,6 +16,10 @@ export class ServerPlayerUpdate {
 
     public getPosition(): Point {
         return new Point(this.posX, this.posY);
+    }
+
+    public getPlayerName(): string {
+        return this.playerName;
     }
 
     //TODO: Phase 2 uncomment the following methods

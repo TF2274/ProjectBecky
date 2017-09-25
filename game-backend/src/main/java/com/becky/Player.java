@@ -1,85 +1,115 @@
 package com.becky;
 
-import java.awt.*;
+import org.java_websocket.WebSocket;
+import java.awt.geom.Point2D;
 
-public class Player {
-    private Point position = new Point(x_position, y_position);
-
+public class Player implements GameEntity {
+    public static final float MAX_VELOCITY = 50.0f;
+    public static final float ACCELERATION = 20.0f;
+    private final Point2D.Float position = new Point2D.Float(0.0f, 0.0f);
+    private final Point2D.Float velocity = new Point2D.Float(0.0f, 0.0f);
+    private final Point2D.Float acceleration = new Point2D.Float(0.0f, 0.0f);
     private String playerUsername;
-    private int x_position;
-    private int y_position;
-    private float x_velocity;
-    private float y_velocity;
-    private float accelaration;
-    private float max_velocity = 50;
+    private final WebSocket connection;
+    private final String authenticationString;
 
-    public Player(String playerUsername) {
+    public Player(final String playerUsername, final String authenticationString, final WebSocket connection) {
         this.playerUsername = playerUsername;
+        this.connection = connection;
+        this.authenticationString = authenticationString;
+    }
+
+    public String getAuthenticationString() {
+        return this.authenticationString;
     }
 
     public String getPlayerUsername() {
         return playerUsername;
     }
 
-    public void setPlayerUsername(String playerUsername) {
+    public WebSocket getConnection() {
+        return this.connection;
+    }
+
+    public void setPlayerUsername(final String playerUsername) {
         this.playerUsername = playerUsername;
     }
 
+    @Override
     public int getX_position() {
-        return x_position;
+        return Math.round(position.x);
     }
 
-    public void setX_position(int x_position) {
-        this.x_position = x_position;
+    @Override
+    public void setX_position(final int x_position) {
+        this.position.x = x_position;
     }
 
+    @Override
     public int getY_position() {
-        return y_position;
+        return Math.round(this.position.y);
     }
 
-    public void setY_position(int y_position) {
-        this.y_position = y_position;
+    @Override
+    public void setY_position(final int y_position) {
+        this.position.y = y_position;
     }
 
+    @Override
     public float getX_velocity() {
-        return x_velocity;
+        return this.velocity.x;
     }
 
-    public void setX_velocity(float x_velocity) {
-        this.x_velocity = x_velocity;
+    @Override
+    public void setX_velocity(final float x_velocity) {
+        this.velocity.x = x_velocity;
     }
 
+    @Override
     public float getY_velocity() {
-        return y_velocity;
+        return velocity.y;
     }
 
-    public void setY_velocity(float y_velocity) {
-        this.y_velocity = y_velocity;
+    @Override
+    public void setY_velocity(final float y_velocity) {
+        this.velocity.y = y_velocity;
     }
 
-    public float getAccelaration() {
-        return accelaration;
+    @Override
+    public float getX_acceleration() {
+        return this.acceleration.x;
     }
 
-    public void setAccelaration(float accelaration) {
-        this.accelaration = accelaration;
+    @Override
+    public void setX_acceleration(final float accelaration) {
+        this.acceleration.x = accelaration;
     }
 
-    public float getMax_velocity() {
-        return max_velocity;
+    @Override
+    public float getY_acceleration() {
+        return this.acceleration.y;
     }
 
-    public void setMax_velocity(float max_velocity) {
-        this.max_velocity = max_velocity;
+    @Override
+    public void setY_acceleration(final float accelaration) {
+        this.acceleration.y = accelaration;
     }
 
-    public void setPostion(Point position)
-    {
-        this.position = position;
+    public void tick(final long elapsedTime) {
+        final float multiplier = elapsedTime / 1000.0f;
+        this.velocity.x += multiplier * this.acceleration.x;
+        this.velocity.y += multiplier * this.acceleration.y;
+        capVelocity();
+        this.position.x += multiplier * this.velocity.x;
+        this.position.y += multiplier * this.velocity.y;
     }
 
-    public Point getPosition()
-    {
-        return position;
+    private void capVelocity() {
+        if(this.velocity.x > MAX_VELOCITY) {
+            this.velocity.x = MAX_VELOCITY;
+        }
+        if(this.velocity.y > MAX_VELOCITY) {
+            this.velocity.y = MAX_VELOCITY;
+        }
     }
 }
