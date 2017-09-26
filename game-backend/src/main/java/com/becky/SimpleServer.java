@@ -1,5 +1,6 @@
 package com.becky;
 
+import com.becky.networked.InitialServerJoinState;
 import com.becky.networked.InputStateChange;
 import com.becky.networked.ServerUsernameRequestStatus;
 import com.becky.networked.UsernameChangeRequest;
@@ -46,6 +47,24 @@ public class SimpleServer extends WebSocketServer {
         final String ip = remoteAddress.getHostName();
         final int port = remoteAddress.getPort();
         System.out.println(String.format("Connection received from: %s:%d", ip, port));
+
+        //Create and add the player to the game
+        final String username = generateRandomUsername();
+        final String auth = generateAuthToken();
+        final Player player = new Player(username, auth, webSocket);
+        gameInstance.addPlayer(player);
+
+        //Setup the initial join state of the player
+        final InitialServerJoinState initialJoinState = new InitialServerJoinState();
+        initialJoinState.setAuthenticationString(auth);
+        initialJoinState.setInitialUsername(username);
+        initialJoinState.setInitialLocationX(player.getX_position());
+        initialJoinState.setInitialLocationY(player.getY_position());
+
+        //json serialize and transmit the initial join state to the client
+        final JSONObject jsonObject = new JSONObject(initialJoinState);
+        final String jsonSendMessage = jsonObject.toString();
+        webSocket.send(jsonSendMessage);
     }
 
     @Override
@@ -121,5 +140,28 @@ public class SimpleServer extends WebSocketServer {
         }
 
         //TODO: In phase 2 update player angles and whether or not player is shooting
+    }
+
+    private static final String CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private String generateAuthToken() {
+        final StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < 19; i++) {
+            if(i % 4 == 0) {
+                builder.append('-');
+            }
+            else {
+                final int rnd = (int)Math.round(Math.random() * 62);
+                builder.append(CHARACTERS.charAt(rnd));
+            }
+        }
+        return builder.toString();
+    }
+
+    private String generateRandomUsername() {
+        int random = 0;
+        while(gameInstance.getPlayerByUsername("unnamed" + random) != null) {
+            random = (int)Math.round(Math.random() * 999);
+        }
+        return "unnamed" + random;
     }
 }

@@ -6,5 +6,6 @@ import {Point} from "../Point";
 export class InitialServerJoinState {
     public initialUsername: string;
     public authenticationString: string;
-    public initialLocation: Point;
+    public initialLocationX: number;
+    public initialLocationY: number;
 }
