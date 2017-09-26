@@ -1,5 +1,5 @@
-// Create new websocket connection on join game button clicked
 "use strict";
+// Create new websocket connection on join game button clicked
 exports.__esModule = true;
 // Websocket creates the message and error listeners
 // Send username changed object via a JSON
@@ -15,13 +15,8 @@ var JoinGame = (function () {
         //this.init();
         //this.join();
     }
-
     JoinGame.prototype.join = function () {
         this.init();
-        console.log('Sending join request JSON');
-        this.connection.send(JSON.stringify({
-            username: this.username
-        }));
     };
     JoinGame.prototype.changeUsername = function (newName) {
         console.log('Change username requested. Requested username is: ' + newName);
@@ -45,39 +40,46 @@ var JoinGame = (function () {
     JoinGame.prototype.initSocketListeners = function () {
         var _this = this;
         console.log("Creating OnError event listener...");
-        this.connection.onerror = function (event) {
-            _this.handleError(event.message);
+        this.connection.onopen = function (event) {
+            _this.handleSuccessfulConnection();
         };
         console.log("Creating OnMessage event listener...");
         this.connection.onmessage = function (event) {
             _this.handleMessage(event.data);
         };
     };
-    JoinGame.prototype.handleError = function (message) {
-        console.log("Error:" + message);
-        // Display error to user
-        //TODO: Display friendly error to user
-        // Close everything
-        this.connection.close();
-        // Reset
-        //TODO: Reset the connection
+    JoinGame.prototype.handleSuccessfulConnection = function () {
+        console.log("Successful connection to server!");
     };
     JoinGame.prototype.handleMessage = function (message) {
+        var _this = this;
         console.log("Message received from server: " + message);
-        // Start game on true
-        if (message == 'true') {
-            // Close the listeners
-            console.log("Closing listeners...");
-            //TODO: Actually close listeners
-            // Create the game client
-            console.log("Creating game client...");
-            var game = new GameClient_1.GameClient(this.canvas, this.connection, this.username, this.authenticationString);
+        // Deserialize the initial state object
+        var state = JSON.parse(message);
+        if (state == null || state.authenticationString == null || state.initialUsername == null) {
+            return;
         }
-        else {
-            // Do something on false
-            console.log("But why? (╯°□°）╯︵ ┻━┻");
-            //TODO: Actually do something
+        this.initialJoinState = state;
+        this.connection.onmessage = function (event) {
+            _this.handleUsernameMessage(message);
+        };
+    };
+    JoinGame.prototype.handleUsernameMessage = function (message) {
+        console.log("Username message received from server: " + message);
+        var username = JSON.parse(message);
+        if (username == null || username.getMessage() == null || username.getStatus() == null) {
+            return;
         }
+        if (username.getStatus() === 'failed') {
+            this.connection.close();
+            //TODO: Display the error string
+            console.log(username.getMessage());
+            return;
+        }
+        //create the client and kill the current listener
+        this.connection.onmessage = function (event) { };
+        var gameClient = new GameClient_1.GameClient(this.canvas, this.connection, username.getMessage(), this.initialJoinState.authenticationString);
+        gameClient.run();
     };
     return JoinGame;
 }());

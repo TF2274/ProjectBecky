@@ -8,15 +8,9 @@ var Set_1 = require("typescript-collections/dist/lib/Set");
  */
 var ClientPlayer = (function () {
     function ClientPlayer(parent, x, y, angle, username) {
-        if (x === void 0) {
-            x = 0;
-        }
-        if (y === void 0) {
-            y = 0;
-        }
-        if (angle === void 0) {
-            angle = 0;
-        }
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (angle === void 0) { angle = 0; }
         this.acceleration = 20;
         this.max_velocity = 50;
         this.position = new Point_1.Point(x, y);
@@ -24,7 +18,6 @@ var ClientPlayer = (function () {
         this.velocity = new Point_1.Point(0, 0);
         this.parent = parent;
     }
-
     ClientPlayer.prototype.getUsername = function () {
         return this.username;
     };

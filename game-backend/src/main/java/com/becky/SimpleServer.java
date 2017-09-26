@@ -83,7 +83,7 @@ public class SimpleServer extends WebSocketServer {
                 player.setPlayerUsername(request.getNewUsername());
                 gameInstance.addPlayer(player);
                 status.setStatus("success");
-                status.setStatus(request.getNewUsername());
+                status.setMessage(request.getNewUsername());
             }
             else {
                 status.setStatus("failed");

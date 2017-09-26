@@ -27,7 +27,6 @@ var GameClient = (function () {
         this.authenticationString = authenticationString;
         this.init();
     }
-
     GameClient.prototype.getParentEntity = function () {
         return null; //GameClient has no parent. It IS the container.
     };

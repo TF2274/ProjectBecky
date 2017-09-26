@@ -11,7 +11,6 @@ var OpponentPlayer = (function () {
         this.username = username;
         this.parent = parent;
     }
-
     OpponentPlayer.prototype.getUsername = function () {
         return this.username;
     };

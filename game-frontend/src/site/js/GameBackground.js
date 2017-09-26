@@ -25,7 +25,6 @@ var GameBackground = (function () {
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
     }
-
     /**
      * Links a player to the background. The player is what determines the relative positioning of the background.
      * @param player

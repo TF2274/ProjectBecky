@@ -1,10 +1,1 @@
-{
-  "version": 3,
-  "file": "ServerUsernameRequestStatus.js",
-  "sourceRoot": "",
-  "sources": [
-    "../../../main/ts/networked/ServerUsernameRequestStatus.ts"
-  ],
-  "names": [],
-  "mappings": ";;AAAA;IAAA;IAWA,CAAC;IAPU,+CAAS,GAAhB;QACI,MAAM,CAAC,IAAI,CAAC,MAAM,CAAC;IACvB,CAAC;IAEM,gDAAU,GAAjB;QACI,MAAM,CAAC,IAAI,CAAC,OAAO,CAAC;IACxB,CAAC;IACL,kCAAC;AAAD,CAAC,AAXD,IAWC;AAXY,kEAA2B"
-}
+{"version":3,"file":"ServerUsernameRequestStatus.js","sourceRoot":"","sources":["../../../main/ts/networked/ServerUsernameRequestStatus.ts"],"names":[],"mappings":";;AAAA;IAAA;IAWA,CAAC;IAPU,+CAAS,GAAhB;QACI,MAAM,CAAC,IAAI,CAAC,MAAM,CAAC;IACvB,CAAC;IAEM,gDAAU,GAAjB;QACI,MAAM,CAAC,IAAI,CAAC,OAAO,CAAC;IACxB,CAAC;IACL,kCAAC;AAAD,CAAC,AAXD,IAWC;AAXY,kEAA2B"}

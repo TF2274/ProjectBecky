@@ -3,7 +3,6 @@ exports.__esModule = true;
 var ServerUsernameRequestStatus = (function () {
     function ServerUsernameRequestStatus() {
     }
-
     ServerUsernameRequestStatus.prototype.getStatus = function () {
         return this.status;
     };

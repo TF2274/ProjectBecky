@@ -11,7 +11,6 @@ var InputStateChange = (function () {
         this.inputName = "w"; //the name of the input (w, a, s, d, space, mouse, or click)
         this.flag = false; //used only if the input is a key/mouse button press
     }
-
     return InputStateChange;
 }());
 exports.InputStateChange = InputStateChange;

@@ -11,7 +11,6 @@ var SimpleRenderer = (function () {
         this.screenOrigin = new Point_1.Point();
         this.elements = new Set_1["default"]();
     }
-
     SimpleRenderer.prototype.addRenderable = function (element) {
         this.elements.add(element);
     };
