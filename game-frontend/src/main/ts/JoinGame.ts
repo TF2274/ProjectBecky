@@ -16,8 +16,7 @@ import {GameClient} from "./GameClient";
 import {InitialServerJoinState} from "./networked/InitialServerJoinState";
 import {ServerUsernameRequestStatus} from "./networked/ServerUsernameRequestStatus";
 
-
-class JoinGame {
+export class JoinGame {
     private connection: WebSocket;
     private username: string;
     private authenticationString: string;
@@ -113,3 +112,5 @@ class JoinGame {
 
 
 }
+
+export default JoinGame;

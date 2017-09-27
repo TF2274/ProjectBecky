@@ -25,7 +25,7 @@ public class Becky implements Runnable {
 
 
     public static void main(final String[] args) {
-        final InetSocketAddress socketAddress = new InetSocketAddress(9001);
+        final InetSocketAddress socketAddress = new InetSocketAddress(3000);
         final Becky game = new Becky();
         final SimpleServer simpleServer = new SimpleServer(socketAddress, game);
 

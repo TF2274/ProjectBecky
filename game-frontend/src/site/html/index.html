@@ -69,7 +69,7 @@
     logon.addEventListener('click', function () {
         message.innerHTML = 'Join Button Clicked';
         message.style.display = 'none';
-        var game = JoinGame(username, game_canvas);
+        var game = new JoinGame(username, game_canvas);
         game.join();
     });
 </script>
