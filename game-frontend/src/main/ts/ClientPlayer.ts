@@ -1,13 +1,8 @@
-import {Player} from "./Player";
-import {Updateable} from "./Updateable";
-import {Point} from "./Point";
-import {GameEntity} from "./GameEntity";
-import Set from "typescript-collections/dist/lib/Set";
 /**
  * Represents the current player. The avatar being controlled by the user.
  * See OpponentPlayer for the other players.
  */
-export class ClientPlayer implements Player, Updateable, GameEntity {
+class ClientPlayer implements Player, Updateable, GameEntity {
     private acceleration: number = 20;
     private max_velocity: number = 50;
 

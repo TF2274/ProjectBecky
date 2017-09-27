@@ -1,13 +1,7 @@
-import {Player} from "./Player";
-import {Updateable} from "./Updateable";
-import {Point} from "./Point";
-import {GameEntity} from "./GameEntity";
-import Set from "typescript-collections/dist/lib/Set";
-
 /**
  * Represents another player. Not the player on this client.
  */
-export class OpponentPlayer implements Player, Updateable, GameEntity {
+class OpponentPlayer implements Player, Updateable, GameEntity {
     private position : Point;
     private angle: number;
     private username: string;

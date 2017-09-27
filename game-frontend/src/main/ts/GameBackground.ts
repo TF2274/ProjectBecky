@@ -1,11 +1,7 @@
-import {Renderable} from "./Renderable";
-import {Player} from "./Player";
-import {Point} from "./Point";
-
 /**
  * Represents, and is responsible for the background of the game screen as well as the world border.
  */
-export class GameBackground implements Renderable {
+class GameBackground implements Renderable {
     private gridSize: number = 16; //default grid size is 16 pixels
     private lineThickness: number = 1;
     private borderThickness: number = 4;

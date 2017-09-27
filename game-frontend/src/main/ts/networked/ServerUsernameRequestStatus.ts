@@ -1,4 +1,7 @@
-export class ServerUsernameRequestStatus {
+/**
+ * A status sent from the server to indicate if a username change request was successful
+ */
+class ServerUsernameRequestStatus {
     private status: string;
     private message: string;
 

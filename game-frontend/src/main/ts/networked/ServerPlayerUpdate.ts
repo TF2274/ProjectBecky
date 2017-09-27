@@ -1,9 +1,8 @@
 /**
  * Represents an update about a player from the server.
  */
-import {Point} from "../Point";
 
-export class ServerPlayerUpdate {
+class ServerPlayerUpdate {
     private posX: number;
     private posY: number;
     private playerName: string;

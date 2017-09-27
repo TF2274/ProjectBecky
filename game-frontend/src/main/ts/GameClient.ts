@@ -1,17 +1,8 @@
-import {SimpleRenderer} from "./SimpleRenderer";
-import {ClientPlayer} from "./ClientPlayer";
-import {Renderer} from "./Renderer";
-import {GameBackground} from "./GameBackground";
-import {GameEntity} from "./GameEntity";
-import {OpponentPlayer} from "./OpponentPlayer";
-import Set from "typescript-collections/dist/lib/Set";
-import {InputStateChange} from "./networked/InputStateChange";
-
 /**
  * This class is the base class to the game client itself.
  * This class ultimately contains everything.
  */
-export class GameClient implements GameEntity {
+class GameClient implements GameEntity {
     //keep these the same as the server. Might have server send message to client with these values in future
     private worldWidth: number = 10000;
     private worldHeight: number = 10000;

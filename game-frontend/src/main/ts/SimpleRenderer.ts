@@ -1,12 +1,7 @@
-import Set from "typescript-collections/dist/lib/Set";
-import {Renderer} from "./Renderer";
-import {Renderable} from "./Renderable";
-import {Point} from "./Point";
-
 /**
  * A simple 2D renderer class.
  */
-export class SimpleRenderer implements Renderer {
+class SimpleRenderer implements Renderer {
     private elements: Set<Renderable>;
     private renderingContext: CanvasRenderingContext2D;
     private screenOrigin: Point;

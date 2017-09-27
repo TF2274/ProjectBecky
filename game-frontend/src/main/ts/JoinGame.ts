@@ -1,22 +1,7 @@
-// Create new websocket connection on join game button clicked
-
-// Websocket creates the message and error listeners
-
-// Send username changed object via a JSON
-
-// message listener recieves a message from server either true or false
-
-// Creates game client on true and destroy the listeners
-
-// If error, display error to the user from the server adn reset everything
-
-//
-
-import {GameClient} from "./GameClient";
-import {InitialServerJoinState} from "./networked/InitialServerJoinState";
-import {ServerUsernameRequestStatus} from "./networked/ServerUsernameRequestStatus";
-
-export class JoinGame {
+/**
+ * This class handles the handshake with the server when the client joins the game
+ */
+class JoinGame {
     private connection: WebSocket;
     private username: string;
     private authenticationString: string;
@@ -112,5 +97,3 @@ export class JoinGame {
 
 
 }
-
-export default JoinGame;

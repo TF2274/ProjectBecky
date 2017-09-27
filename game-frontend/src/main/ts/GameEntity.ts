@@ -1,10 +1,8 @@
-import Set from "typescript-collections/dist/lib/Set";
-
 /**
  * Represents any game entity. A game entity can be contained within any other
  * game entity, and can contain other game entities.
  */
-export interface GameEntity {
+interface GameEntity {
     /**
      * Gets a set of all game entities contained within this game entity.
      * @returns {Set<GameEntity>}

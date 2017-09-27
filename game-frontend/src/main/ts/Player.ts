@@ -1,9 +1,7 @@
-import {Renderable} from "./Renderable";
-
 /**
  * Represents any player. Either the current player or any opponent player.
  */
-export interface Player extends Renderable {
+interface Player extends Renderable {
     /**
      * Gets the username of the player
      */

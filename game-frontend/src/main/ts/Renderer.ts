@@ -1,10 +1,7 @@
-import {Renderable} from "./Renderable";
-import {Point} from "./Point";
-
 /**
  * This is the interface for any renderer classes.
  */
-export interface Renderer {
+interface Renderer {
     /**
      * Adds a renderable object to the renderer. All added objects will rendered when
      * the draw method is called.
