@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
  * Created by Clayton on 10/10/2017.
  */
 public class PlayerMessageTransmitter {
-    private final ExecutorService threadPool = Executors.newFixedThreadPool(50);
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(25);
 
     public void transmitMessage(final Player client, final String message) {
         threadPool.submit(() -> {
