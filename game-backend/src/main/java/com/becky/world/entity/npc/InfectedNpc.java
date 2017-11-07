@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class InfectedNpc extends Npc implements WorldEventListener {
-    private static final float MAX_VIEW_DISTANCE = 2048.0f;
+    private static final float MAX_VIEW_DISTANCE = 500.0f;
     private static final float ACCELERATION = Player.ACCELERATION;
 
     private Player trackedPlayer;
@@ -103,7 +103,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
      */
     public static class InfectedNpcSpawnRules extends SpawnRules {
         //how many npc instances to ambush players with at once
-        private static final int NUM_AMBUSH_NPCS = 10;
+        private static final int NUM_AMBUSH_NPCS = 6;
 
         /**
          * The constructor of your spawn rules class may not have any parameters
@@ -132,7 +132,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
 
                 //spawn 10 InfectedNpc entities around
                 for(int j = 0; j < NUM_AMBUSH_NPCS; j++) {
-                    final float angle = j * (float)Math.PI/5.0f;
+                    final float angle = j * (float)Math.PI/(NUM_AMBUSH_NPCS/2.0f);
                     final float x = 512 * (float)StrictMath.cos(angle) + chosenPlayer.getXPosition();
                     final float y = 512 * (float)StrictMath.sin(angle) + chosenPlayer.getYPosition();
                     final InfectedNpc npc = new InfectedNpc(gameWorld, chosenPlayer);
@@ -149,7 +149,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
      * Anywhere between 0 and 20 are spawned in each round.
      */
     public static class InfectedNpcRandomSpawnerRules extends SpawnRules {
-        private static final int MAX_POPULATION = 200;
+        private static final int MAX_POPULATION = 100;
 
         public InfectedNpcRandomSpawnerRules() {
             super(InfectedNpc.class);
@@ -159,7 +159,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
 
         @Override
         public void spawn(final NewGameWorld world) {
-            final int numSpawns = (int)(Math.random() * 21);
+            final int numSpawns = (int)(Math.random() * 10);
             if(numSpawns == 0) {
                 return;
             }
