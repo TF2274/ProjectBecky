@@ -68,9 +68,9 @@ class LagCompensator {
     }
 
     public compensateClientPlayer(player: Player, playerInfo: ServerPlayerUpdate): void {
+        player.setAngle(playerInfo.angle);
         if(!LagCompensator.enabled) {
             player.setPosition(playerInfo.posX, playerInfo.posY);
-            player.setAngle(playerInfo.angle);
             return;
         }
 

@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class InfectedNpc extends Npc implements WorldEventListener {
-    private static final float MAX_VIEW_DISTANCE = 500.0f;
+    private static final float MAX_VIEW_DISTANCE = 550.0f;
     private static final float ACCELERATION = Player.ACCELERATION;
 
     private Player trackedPlayer;
@@ -43,6 +43,8 @@ public class InfectedNpc extends Npc implements WorldEventListener {
         else {
             super.acceleration.x = 0.0f;
             super.acceleration.y = 0.0f;
+            super.velocity.x = 0.0f;
+            super.velocity.y = 0.0f;
         }
 
         super.tick(elapsedTime);
@@ -50,7 +52,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
 
     @Override
     public void onGameEntityRemoved(final NewGameWorld gameWorld, final GameEntity entity) {
-        if(this.trackedPlayer != null && trackedPlayer.equals(entity)) {
+        if(this.trackedPlayer != null && this.trackedPlayer.equals(entity)) {
             this.trackedPlayer = null;
         }
     }
