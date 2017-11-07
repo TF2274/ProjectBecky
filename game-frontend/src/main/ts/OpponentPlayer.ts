@@ -31,7 +31,11 @@ class OpponentPlayer implements Player, Updateable, GameEntity {
     private static rightLegTip: number = 2;
     private static legElongateRatio: number = 5.0 / ClientPlayer.max_velocity;
 
-    private position : Point;
+    private position : Point = new Point();
+    private velocity: Point = new Point();
+    private acceleration: Point = new Point();
+    private compensateVelocity: Point = new Point();
+    private numLagFrames: number = 0;
     private angle: number = 0;
     private username: string;
     private parent: GameEntity;
@@ -62,6 +66,22 @@ class OpponentPlayer implements Player, Updateable, GameEntity {
         return this.position.getY();
     }
 
+    public getXVelocity(): number {
+        return this.velocity.getX();
+    }
+
+    public getYVelocity(): number {
+        return this.velocity.getY();
+    }
+
+    public getXAcceleration(): number {
+        return this.acceleration.getX();
+    }
+
+    public getYAcceleration(): number {
+        return this.acceleration.getY();
+    }
+
     public getAngle(): number {
         return this.angle;
     }
@@ -73,6 +93,16 @@ class OpponentPlayer implements Player, Updateable, GameEntity {
     public setPosition(x: number, y: number): void {
         this.position.setX(x);
         this.position.setY(y);
+    }
+
+    public setVelocity(x: number, y: number): void {
+        this.velocity.setX(x);
+        this.velocity.setY(y);
+    }
+
+    public setAcceleration(x: number, y: number): void {
+        this.acceleration.setX(x);
+        this.acceleration.setY(y);
     }
 
     public getParentEntity(): GameEntity {
@@ -99,8 +129,30 @@ class OpponentPlayer implements Player, Updateable, GameEntity {
         return this.health;
     }
 
+    public setLagCompensateVelocity(velocity: Point, numFrames: number): void {
+        this.compensateVelocity = velocity;
+        this.numLagFrames = numFrames;
+    }
+
     public update(elapsedTime: number) : void {
-        //TODO: Phase 2, lag compensation
+        if(!LagCompensator.enabled) {
+            return;
+        }
+
+        let multiplier: number = elapsedTime / 1000.0;
+        this.velocity.addX(this.acceleration.getX() * multiplier);
+        this.velocity.addY(this.acceleration.getY() * multiplier);
+        ClientPlayer.capVelocity(this.velocity);
+
+        if(this.numLagFrames === 0) {
+            this.position.addX(this.velocity.getX() * multiplier);
+            this.position.addY(this.velocity.getY() * multiplier);
+        }
+        else {
+            this.position.addX((this.velocity.getX() + this.compensateVelocity.getX()) * multiplier);
+            this.position.addY((this.velocity.getY() + this.compensateVelocity.getY()) * multiplier);
+            this.numLagFrames--;
+        }
     }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {

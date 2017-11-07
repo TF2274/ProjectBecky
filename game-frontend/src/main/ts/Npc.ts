@@ -79,7 +79,7 @@ abstract class Npc implements GameEntity, Updateable, Renderable {
         this.velocity.setY(y);
     }
 
-    public setCompensationVelocity(velocity: Point, numFrames: number): void {
+    public setLagCompensateVelocity(velocity: Point, numFrames: number): void {
         this.compensationVelocity = velocity;
         this.compensationFrames = numFrames;
     }

@@ -17,6 +17,7 @@ class Bullet implements Renderable, Updateable, GameEntity {
     private owner: Player;
     private position: Point;
     private velocity: Point;
+    private angle: number;
     private lagCompensateVelocity: Point;
     private lagCompensateFrames: number;
     private fillColor: string = "#a8ff96";
@@ -64,6 +65,14 @@ class Bullet implements Renderable, Updateable, GameEntity {
         context.closePath();
     }
 
+    public getAngle(): number {
+        return this.angle;
+    }
+
+    public setAngle(angle: number): void {
+        this.angle = angle;
+    }
+
     public getXPosition(): number {
         return this.position.getX();
     }
@@ -79,6 +88,17 @@ class Bullet implements Renderable, Updateable, GameEntity {
     public getYVelocity(): number {
         return this.velocity.getY();
     }
+
+    public getXAcceleration(): number {
+        return 0;
+    }
+
+    public getYAcceleration(): number {
+        return 0;
+    }
+
+    public setVelocity(x: number, y: number): void {}
+    public setAcceleration(x: number, y: number): void {}
 
     public setPosition(x: number, y: number): void {
         this.position = new Point(x, y);

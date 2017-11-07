@@ -10,11 +10,6 @@ interface Player extends Renderable, GameEntity {
     getUsername(): string;
 
     /**
-     * Gets the current look direction of the player in RADIANS.
-     */
-    getAngle(): number;
-
-    /**
      * Sets the player look angle.
      * @param angle
      */
@@ -38,4 +33,16 @@ interface Player extends Renderable, GameEntity {
      * @param {number} score
      */
     setScore(score: number): void;
+
+    /**
+     * Gets player health
+     * @returns {number}
+     */
+    getHealth(): number;
+
+    /**
+     * Sets player health
+     * @param {number} health
+     */
+    setHealth(health: number): void;
 }

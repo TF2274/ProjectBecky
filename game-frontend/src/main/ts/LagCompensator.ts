@@ -67,7 +67,7 @@ class LagCompensator {
         }
     }
 
-    public compensateClientPlayer(player: ClientPlayer, playerInfo: ServerPlayerUpdate): void {
+    public compensateClientPlayer(player: Player, playerInfo: ServerPlayerUpdate): void {
         if(!LagCompensator.enabled) {
             player.setPosition(playerInfo.posX, playerInfo.posY);
             player.setAngle(playerInfo.angle);
@@ -148,7 +148,7 @@ class LagCompensator {
             let deltaY: number = position.getY() - npc.getYPosition();
 
             let adjustVelocity: Point = new Point((deltaX/millis) * 1000, (deltaY/millis) * 1000);
-            npc.setCompensationVelocity(adjustVelocity, this.correctionFps);
+            npc.setLagCompensateVelocity(adjustVelocity, this.correctionFps);
         }
     }
 

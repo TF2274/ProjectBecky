@@ -263,21 +263,10 @@ class GameClient implements GameEntity {
             // Update current players
             for(let i = 0; i < updates.length; i++) {
                 let serverUpdate: ServerPlayerUpdate = updates[i];
-
-                //is the player update for me
-                if(this.player.getUsername() === serverUpdate.playerName) {
-                    this.lagCompensator.compensateClientPlayer(this.player, serverUpdate);
-                }
-                else {
-                    //the player update is likely for another joined player
-                    for(let j = 0; j < this.opponents.length; j++) {
-                        let opponent: OpponentPlayer = this.opponents.get(j);
-                        if(opponent.getUsername() === serverUpdate.playerName) {
-                            opponent.setPosition(serverUpdate.posX, serverUpdate.posY);
-                            opponent.setHealth(serverUpdate.health);
-                            break;
-                        }
-                    }
+                let affectedPlayer: Player = this.getPlayerByUsername(serverUpdate.playerName);
+                if(affectedPlayer !== null) {
+                    this.lagCompensator.compensateClientPlayer(affectedPlayer, serverUpdate);
+                    affectedPlayer.setHealth(serverUpdate.health);
                 }
             }
         }
@@ -531,7 +520,16 @@ class GameClient implements GameEntity {
         this.npcs.add(npc);
     }
 
-    public getXPosition():number { return 0; }
-    public getYPosition():number { return 0; }
+    public getXPosition(): number { return 0; }
+    public getYPosition(): number { return 0; }
+    public getXVelocity(): number { return 0; }
+    public getYVelocity(): number { return 0; }
+    public getXAcceleration(): number { return 0; }
+    public getYAcceleration(): number { return 0; }
     public setPosition(x: number, y:number) {}
+    public setVelocity(x: number, y:number) {}
+    public setAcceleration(x: number, y:number) {}
+    public getAngle(): number { return 0; }
+    public setAngle(angle: number): void {}
+    public setLagCompensateVelocity(v: Point, f: number): void {}
 }
