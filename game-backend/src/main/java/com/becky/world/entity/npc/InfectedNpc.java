@@ -104,6 +104,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
     public static class InfectedNpcSpawnRules extends SpawnRules {
         //how many npc instances to ambush players with at once
         private static final int NUM_AMBUSH_NPCS = 6;
+        private static final int MAX_POPULATION = 100;
 
         /**
          * The constructor of your spawn rules class may not have any parameters
@@ -113,18 +114,22 @@ public class InfectedNpc extends Npc implements WorldEventListener {
         public InfectedNpcSpawnRules() {
             super(InfectedNpc.class);
             super.setSpawnInterval(90000); //90 second spawn interval
+
+            //low max population so spawning only happens when most npcs are dead
+            super.setMaxPopulation(25);
         }
 
         //called automatically when the population gets low enough
         @Override
         public void spawn(final NewGameWorld gameWorld) {
+            //only spawn if players are online
             final List<Player> players = gameWorld.getAllPlayers();
             if(players.isEmpty()) {
-                super.setMaxPopulation(10);
                 return;
             }
+
+            //surround up to 10 players with NPCs
             final int numRandomPlayers = Math.min(10, players.size());
-            super.setMaxPopulation(numRandomPlayers * 10 + InfectedNpcRandomSpawnerRules.MAX_POPULATION);
             for(int i = 0; i < numRandomPlayers; i++) {
                 //pick a player at random
                 final Player chosenPlayer = players.get((int)(Math.random() * players.size()));
@@ -141,38 +146,17 @@ public class InfectedNpc extends Npc implements WorldEventListener {
                     gameWorld.addGameEntity(npc);
                 }
             }
-        }
-    }
 
-    /**
-     * Every 30 seconds these rules spawn more InfectedNpc instances randomly in the world.
-     * Anywhere between 0 and 20 are spawned in each round.
-     */
-    public static class InfectedNpcRandomSpawnerRules extends SpawnRules {
-        private static final int MAX_POPULATION = 100;
-
-        public InfectedNpcRandomSpawnerRules() {
-            super(InfectedNpc.class);
-            super.setMaxPopulation(MAX_POPULATION);
-            super.setSpawnInterval(30000);
-        }
-
-        @Override
-        public void spawn(final NewGameWorld world) {
-            final int numSpawns = (int)(Math.random() * 10);
-            if(numSpawns == 0) {
-                return;
-            }
-
-            final float width = world.getWorldWidth();
-            final float height = world.getWorldHeight();
-
-            for(int i = 0; i < numSpawns; i++) {
-                final InfectedNpc npc = new InfectedNpc(world, null);
-                final Point2D.Float loc = MathUtils.createRandomPointInBounds(0, 0, width, height);
-                npc.setXPosition(loc.x);
-                npc.setYPosition(loc.y);
-                world.addGameEntity(npc);
+            //spawn the remainder of the NPCs
+            final int remaining = MAX_POPULATION - super.getCurrentPopulation();
+            final float width = gameWorld.getWorldWidth();
+            final float height = gameWorld.getWorldHeight();
+            for(int i = 0; i < remaining; i++) {
+                final Point2D.Float position = MathUtils.createRandomPointInBounds(0, 0, width, height);
+                final InfectedNpc npc = new InfectedNpc(gameWorld, null);
+                npc.setXPosition(position.x);
+                npc.setYPosition(position.y);
+                gameWorld.addGameEntity(npc);
             }
         }
     }
