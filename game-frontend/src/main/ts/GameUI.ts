@@ -34,6 +34,9 @@ class GameUI implements Renderable {
     private player: ClientPlayer;
     private leaderBoardList: Set<Player>;
 
+    private usernameMetrics: TextMetrics = null;
+    private usernameDrawX: number;
+    private usernameDrawY: number;
 
     constructor(viewWidth: number, viewHeight: number) {
         this.player = null;
@@ -71,7 +74,7 @@ class GameUI implements Renderable {
             this.drawHealthBar(context);
 
             // Draws the score
-            this.drawScore(context);
+            this.drawUsernameAndScore(context);
         }
 
         // Make sure list is not null before attempting to draw
@@ -155,16 +158,25 @@ class GameUI implements Renderable {
      *
      *  @param context
      */
-    private drawScore(context: CanvasRenderingContext2D): void {
+    private drawUsernameAndScore(context: CanvasRenderingContext2D): void {
+        //screen middle x
+        let midX: number = context.canvas.width / 2;
+
         // Set the context properties for the text
         context.font = this.scoreFontSize + " " + this.scoreFont;
         context.fillStyle = this.scoreFontColor;
 
-        // Draw the Label for the Score
-        context.fillText("Score", (context.canvas.width / 2) - 20, 26);
+        //draw username by getting metrics
+        if(this.usernameMetrics === null) {
+            this.usernameMetrics = context.measureText(this.player.getUsername());
+            this.usernameDrawX = midX - this.usernameMetrics.width/2;
+            this.usernameDrawY = 32;
+        }
+        context.fillText(this.player.getUsername(), this.usernameDrawX, this.usernameDrawY);
 
-        // Set the location of the score to the top center of the screen canvas
-        // Draw the score at the location
-        context.fillText(this.player.getScore().toString(), (context.canvas.width / 2), 52);
+        //draw score info
+        let scoreStr: string = "Score: " + this.player.getScore();
+        let scoreWidth: number = context.measureText(scoreStr).width;
+        context.fillText(scoreStr, midX - scoreWidth/2, this.usernameDrawY + 32);
     }
 }

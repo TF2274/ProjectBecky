@@ -109,6 +109,7 @@ public class NewGameWorld implements Runnable {
     }
 
     private void transmit(final List<GameEntity> entities) {
+        final List<Player> allPlayers = this.getAllPlayers();
         final List<ServerPlayerUpdate> playerUpdates = new ArrayList<>();
         final List<BulletInfo> bulletUpdates = new ArrayList<>();
         final List<NpcInfo> npcInfos = new ArrayList<>();
@@ -125,6 +126,7 @@ public class NewGameWorld implements Runnable {
                 update.setAccelX(player.getXAcceleration());
                 update.setAccelY(player.getYAcceleration());
                 update.setAngle(player.getAngles());
+                update.setHealth(player.getHealth());
                 playerUpdates.add(update);
 
                 if(player.isPlayerHealthUpdated()) {
@@ -198,7 +200,6 @@ public class NewGameWorld implements Runnable {
         final String playerUpdatesMessage = ServerPlayerUpdate.jsonSerializeAll(playerUpdates);
         final String bulletUpdatesMessage = BulletInfo.jsonSerialize(bulletUpdates);
         final String npcUpdatesMessage = NpcInfo.jsonSerializeAll(npcInfos);
-        final Collection<Player> allPlayers = getAllPlayers();
         for(final Player player: allPlayers) {
             messageTransmitter.transmitMessage(player, playerUpdatesMessage);
             messageTransmitter.transmitMessage(player, bulletUpdatesMessage);

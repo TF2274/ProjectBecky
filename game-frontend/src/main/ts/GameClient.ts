@@ -274,6 +274,7 @@ class GameClient implements GameEntity {
                         let opponent: OpponentPlayer = this.opponents.get(j);
                         if(opponent.getUsername() === serverUpdate.playerName) {
                             opponent.setPosition(serverUpdate.posX, serverUpdate.posY);
+                            opponent.setHealth(serverUpdate.health);
                             break;
                         }
                     }

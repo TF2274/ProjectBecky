@@ -227,12 +227,6 @@ class ClientPlayer implements Player, Updateable, GameEntity {
         context.lineJoin = "";
         context.lineCap = "";
 
-        // Draw the username under player
-        context.font = "12px Arial";
-        context.fillStyle = "yellow";
-        let offset = (this.username.length * 3);
-        context.fillText(this.username, ((context.canvas.width / 2) - offset), ((context.canvas.height / 2) - 60));
-
     }
 
     public update(elapsedTime: number): void {

@@ -13,9 +13,18 @@ public class ServerPlayerUpdate implements NetworkedMessage {
     private float accelX;
     private float accelY;
     private float angle;
+    private int health;
     private String playerName;
 
     public ServerPlayerUpdate() {}
+
+    public int getHealth() {
+        return this.health;
+    }
+
+    public void setHealth(final int health) {
+        this.health = health;
+    }
 
     public float getPosX() {
         return posX;

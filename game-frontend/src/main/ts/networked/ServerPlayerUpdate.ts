@@ -11,6 +11,7 @@ class ServerPlayerUpdate {
     public accelY: number;
     public playerName: string;
     public angle: number;
+    public health: number;
 
     /**
      * Checks if a json string is a valid json array of ServerPlayerUpdate objects.

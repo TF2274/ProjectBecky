@@ -38,6 +38,7 @@ class OpponentPlayer implements Player, Updateable, GameEntity {
     private transformedPoints: Point[] = [];
     private score: number = 0;
     private health: number = 100;
+    private usernameDrawXOffset: number = -1;
 
     constructor(parent: GameEntity, username: string) {
         this.position = new Point();
@@ -90,6 +91,14 @@ class OpponentPlayer implements Player, Updateable, GameEntity {
         return this.score;
     }
 
+    public setHealth(health: number): void {
+        this.health = health;
+    }
+
+    public getHealth(): number {
+        return this.health;
+    }
+
     public update(elapsedTime: number) : void {
         //TODO: Phase 2, lag compensation
     }
@@ -140,11 +149,14 @@ class OpponentPlayer implements Player, Updateable, GameEntity {
     }
 
     private drawUsername(context: CanvasRenderingContext2D, screenPos: Point): void {
+        if(this.usernameDrawXOffset === -1) {
+            this.usernameDrawXOffset = context.measureText(this.username).width / 2;
+        }
+
         // Draw the username under player
         context.font = "12px Arial";
         context.fillStyle = "red";
-        let offset = (this.username.length * 3);
-        context.fillText(this.username, screenPos.getX() - offset, screenPos.getY() - 60);
+        context.fillText(this.username, screenPos.getX() - this.usernameDrawXOffset, screenPos.getY() + 30);
     }
 
     private drawHealthBar(context: CanvasRenderingContext2D, screenPos: Point): void {
