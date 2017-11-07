@@ -1,5 +1,6 @@
 package com.becky.networking;
 
+import com.becky.util.MathUtils;
 import com.becky.util.StringUtils;
 import com.becky.networking.message.BulletInfo;
 import com.becky.networking.message.ClientInputStateUpdate;
@@ -16,8 +17,8 @@ import com.becky.world.entity.Player;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
-import org.json.JSONArray;
 
+import java.awt.geom.Point2D;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,6 +77,10 @@ public class SimpleServer extends WebSocketServer {
         }
         final String auth = StringUtils.generateUniqueAuthenticationString();
         final Player player = new Player(gameInstance, username, auth, webSocket);
+        final Point2D.Float randomPosition = MathUtils.createRandomPointInBounds(
+            0, 0, gameInstance.getWorldWidth(), gameInstance.getWorldHeight());
+        player.setXPosition(randomPosition.x);
+        player.setYPosition(randomPosition.y);
         gameInstance.addPlayer(player);
 
         //Setup the initial join state of the player
@@ -106,8 +111,7 @@ public class SimpleServer extends WebSocketServer {
                     webSocket.send(message);
                 }
             }
-        }
-        catch(final RuntimeException ex) {
+        } catch(final RuntimeException ex) {
             System.out.println("OnMessage Error: " + ex.getMessage());
         }
     }

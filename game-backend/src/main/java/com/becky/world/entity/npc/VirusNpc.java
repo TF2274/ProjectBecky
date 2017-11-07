@@ -167,11 +167,11 @@ public class VirusNpc extends Npc {
                 return;
             }
 
-            final float xSpawn = (float)(Math.random() * world.getWorldWidth());
-            final float ySpawn = (float)(Math.random() * world.getWorldHeight());
+            final Point2D.Float randomLocation = MathUtils.createRandomPointInBounds(
+                0, 0, world.getWorldWidth(), world.getWorldHeight());
             final VirusNpc npc = new VirusNpc(world);
-            npc.setXPosition(xSpawn);
-            npc.setYPosition(ySpawn);
+            npc.setXPosition(randomLocation.x);
+            npc.setYPosition(randomLocation.y);
             world.addGameEntity(npc);
 
             if(super.getCurrentPopulation() >= POPULATION_CAP) {

@@ -2,6 +2,8 @@ package com.becky.util;
 
 import com.becky.world.entity.GameEntity;
 
+import java.awt.geom.Point2D;
+
 public class MathUtils {
     public static float distance(final GameEntity first, final GameEntity second) {
         return MathUtils.distance(first.getXPosition(), first.getYPosition(), second.getXPosition(), second.getYPosition());
@@ -24,5 +26,14 @@ public class MathUtils {
         else {
             return angle - 2*(float)Math.PI;
         }
+    }
+
+    public static Point2D.Float createRandomPointInBounds(
+            final float minX,
+            final float minY,
+            final float maxX,
+            final float maxY) {
+            return new Point2D.Float((float)(Math.random() * (maxX-minX)) + minX,
+                                     (float)(Math.random() * (maxY-minY)) + minY);
     }
 }

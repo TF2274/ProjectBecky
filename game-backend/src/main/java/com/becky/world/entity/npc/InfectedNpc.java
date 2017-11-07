@@ -6,6 +6,7 @@ import com.becky.world.WorldEventListener;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
 
+import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.List;
 
@@ -168,8 +169,9 @@ public class InfectedNpc extends Npc implements WorldEventListener {
 
             for(int i = 0; i < numSpawns; i++) {
                 final InfectedNpc npc = new InfectedNpc(world, null);
-                npc.setXPosition((float)(Math.random() * width));
-                npc.setYPosition((float)(Math.random() * height));
+                final Point2D.Float loc = MathUtils.createRandomPointInBounds(0, 0, width, height);
+                npc.setXPosition(loc.x);
+                npc.setYPosition(loc.y);
                 world.addGameEntity(npc);
             }
         }
