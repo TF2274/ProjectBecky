@@ -40,7 +40,7 @@
                         <div id="join_message" hidden>
                             Join Message
                         </div>
-                        <input id="username" type="text" class="form-control">
+                        <input id="username" type="text" class="form-control" onkeyup="inputKeyUp(event)">
 
                     </div>
                 </div>
@@ -117,6 +117,13 @@
         game_canvas.style.display = 'inherit';
     });
 
+    function inputKeyUp(e) {
+        e.which = e.which || e.keyCode;
+        if(e.which == 13) {
+            // submit
+            logon.click();
+        }
+    }
 
     function componet() {
 
