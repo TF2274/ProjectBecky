@@ -4,6 +4,8 @@
 ///<reference path="./GameBackground.ts"/>
 ///<reference path="./collections/Set.ts"/>
 ///<reference path="./OpponentPlayer.ts"/>
+///<reference path="./VirusNpc.ts"/>
+///<reference path="./InfectedNpc.ts"/>
 ///<reference path="./networked/ServerPlayerUpdate.ts"/>
 ///<reference path="./networked/ClientInputStateUpdate.ts"/>
 ///<reference path="./networked/PlayerListChange.ts"/>

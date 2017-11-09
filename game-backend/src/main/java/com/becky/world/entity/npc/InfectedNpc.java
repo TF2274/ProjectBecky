@@ -154,10 +154,10 @@ public class InfectedNpc extends Npc implements WorldEventListener {
             final float width = gameWorld.getWorldWidth();
             final float height = gameWorld.getWorldHeight();
             for(int i = 0; i < remaining; i++) {
-                final Point2D.Float position = MathUtils.createRandomPointInBounds(0, 0, width, height);
+                final Point2D.Float pos = MathUtils.createRandomPointInBounds(0, 0, width, height);
                 final InfectedNpc npc = new InfectedNpc(gameWorld, null);
-                npc.setXPosition(position.x);
-                npc.setYPosition(position.y);
+                npc.setXPosition(pos.x);
+                npc.setYPosition(pos.y);
                 gameWorld.addGameEntity(npc);
             }
         }

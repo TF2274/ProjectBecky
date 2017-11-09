@@ -1,3 +1,5 @@
+///<reference path="./ServerPlayerUpdate.ts"/>
+
 /**
  * Contains an array of ServerPlayerUpdate objects.
  * This is the initial list of players and their locations.
