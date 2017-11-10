@@ -20,7 +20,7 @@
  * This class is the base class to the game client itself.
  * This class ultimately contains everything.
  */
-class GameClient implements GameEntity {
+class GameClient extends GameEntity {
     static FRAMES_PER_SECOND: number = 60;
     static TIME_PER_FRAME: number = 1000.0 / GameClient.FRAMES_PER_SECOND;
 
@@ -50,6 +50,7 @@ class GameClient implements GameEntity {
      * @param Username of the player
      */
     constructor(canvas: HTMLCanvasElement, connection: WebSocket, username: string, authenticationString: string) {
+        super(0);
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         this.canvas = canvas;
@@ -61,11 +62,11 @@ class GameClient implements GameEntity {
         this.init();
     }
 
-    public getParentEntity = (): GameEntity  => {
+    public getParentEntity(): GameEntity {
         return null; //GameClient has no parent. It IS the container.
     }
 
-    public getChildEntities = (): Set<GameEntity> => {
+    public getChildEntities(): Set<GameEntity> {
         let entities: Set<GameEntity> = new Set<GameEntity>();
         entities.add(this.player);
         for (let i: number = 0; i < this.opponents.length; i++) {
@@ -145,7 +146,7 @@ class GameClient implements GameEntity {
         setTimeout(this.execGameFrame, waitTime);
     }
 
-    private update = (elapsedTime: number): void => {
+    public update(elapsedTime: number): void {
         //update current player
         this.player.update(elapsedTime);
 
@@ -184,7 +185,7 @@ class GameClient implements GameEntity {
         this.background.setViewHeight(this.canvas.height);
     }
 
-    private draw = (): void => {
+    private draw(): void {
         //this might be all that has to be done. Maybe.
         let sx = this.player.getXPosition() - this.canvas.width/2;
         let sy = this.player.getYPosition() - this.canvas.height/2;
@@ -192,7 +193,7 @@ class GameClient implements GameEntity {
         this.renderer.draw();
     }
 
-    private sendInputState = (): void => {
+    private sendInputState(): void {
         let state: ClientInputStateUpdate = new ClientInputStateUpdate();
         state.movingDown = this.player.getMovingDown();
         state.movingUp = this.player.getMovingUp();
@@ -521,17 +522,4 @@ class GameClient implements GameEntity {
         this.renderer.addRenderable(npc);
         this.npcs.add(npc);
     }
-
-    public getXPosition(): number { return 0; }
-    public getYPosition(): number { return 0; }
-    public getXVelocity(): number { return 0; }
-    public getYVelocity(): number { return 0; }
-    public getXAcceleration(): number { return 0; }
-    public getYAcceleration(): number { return 0; }
-    public setPosition(x: number, y:number) {}
-    public setVelocity(x: number, y:number) {}
-    public setAcceleration(x: number, y:number) {}
-    public getAngle(): number { return 0; }
-    public setAngle(angle: number): void {}
-    public setLagCompensateVelocity(v: Point, f: number): void {}
 }

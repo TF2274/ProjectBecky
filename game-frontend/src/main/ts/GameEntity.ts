@@ -4,90 +4,242 @@
  * Represents any game entity. A game entity can be contained within any other
  * game entity, and can contain other game entities.
  */
-interface GameEntity {
+abstract class GameEntity implements Updateable {
+    protected children: Set<GameEntity> = new Set<GameEntity>();
+    protected parent: GameEntity = null;
+
+    protected xPosition: number = 0;
+    protected yPosition: number = 0;
+    protected xVelocity: number = 0;
+    protected yVelocity: number = 0;
+    protected xCompensateVelocity: number = 0;
+    protected yCompensateVelocity: number = 0;
+    protected compensateFrames: number = 0;
+    protected xAcceleration: number = 0;
+    protected yAcceleration: number = 0;
+    protected angles: number = 0;
+    protected deceleration: number = 0;
+
+    private max_velocity: number = 0;
+
+    constructor(max_velocity: number) {
+        this.max_velocity = max_velocity;
+    }
+
     /**
      * Gets a set of all game entities contained within this game entity.
      * @returns {Set<GameEntity>}
      */
-    getChildEntities(): Set<GameEntity>;
+    public getChildEntities(): Set<GameEntity> {
+        return this.children;
+    }
+
+    /**
+     * Makes a game entity become a child of this entity.
+     * @param entity
+     */
+    public addChildEntity(entity: GameEntity): void {
+        this.children.add(entity);
+    }
+
+    /**
+     * Removes an entity from this entity's children.
+     * @param entity
+     */
+    public removeChildEntity(entity: GameEntity): void {
+        this.children.remove(entity);
+    }
+
+    /**
+     * Clears this game entity of all children.
+     * @param entity
+     */
+    public clearChildren(entity: GameEntity): void {
+        this.children = new Set<GameEntity>();
+    }
 
     /**
      * Gets the game entity this game entity is contained within.
      * @returns {GameEntity}
      */
-    getParentEntity(): GameEntity;
+    public getParentEntity(): GameEntity {
+        return this.parent;
+    }
+
+    /**
+     * Sets the parent of this game entity.
+     * @param entity
+     */
+    public setParentEntity(entity: GameEntity): void {
+        this.parent = entity;
+    }
 
     /**
      * Gets the X position of this game entity.
      */
-    getXPosition(): number;
+    public getXPosition(): number {
+        return this.xPosition;
+    }
 
     /**
      * Gets the Y position of this game entity.
      */
-    getYPosition(): number;
+    public getYPosition(): number {
+        return this.yPosition;
+    }
 
     /**
-     * Get the X velocity of this game entity.
+     * Gets the x component of this entity's velocity
      * @returns {number}
      */
-    getXVelocity(): number;
+    public getXVelocity(): number {
+        return this.xVelocity;
+    }
 
     /**
-     * Gets the Y velocity of this game entity.
+     * Gets the y component of this entity's velocity
      * @returns {number}
      */
-    getYVelocity(): number;
+    public getYVelocity(): number {
+        return this.yVelocity;
+    }
 
     /**
-     * Get the X acceleration of this game entity.
+     * Gets the x component of this entity's acceleration.
      * @returns {number}
      */
-    getXAcceleration(): number;
+    public getXAcceleration(): number {
+        return this.xAcceleration;
+    }
 
     /**
-     * Get the Y acceleration of this game entity.
+     * Gets the y component of this entity's acceleration.
      * @returns {number}
      */
-    getYAcceleration(): number;
+    public getYAcceleration(): number {
+        return this.yAcceleration;
+    }
 
     /**
-     * Sets the position of the game entity.
+     * Sets the position of the game entity;
      * @param x
      * @param y
      */
-    setPosition(x: number, y: number): void;
+    public setPosition(x: number, y:number): void {
+        this.xPosition = x;
+        this.yPosition = y;
+    }
 
     /**
-     * Sets the velocity of the game entity.
-     * @param {number} x
-     * @param {number} y
+     * Sets the velocity of this game entity.
+     * @param x
+     * @param y
      */
-    setVelocity(x: number, y: number): void;
+    public setVelocity(x: number, y: number): void {
+        this.xVelocity = x;
+        this.yVelocity = y;
+    }
 
     /**
-     * Sets the acceleration of the game entity.
-     * @param {number} x
-     * @param {number} y
+     * Sets the acceleration of this game entity.
+     * @param x
+     * @param y
      */
-    setAcceleration(x: number, y: number): void;
+    public setAcceleration(x: number, y: number): void {
+        this.xAcceleration = x;
+        this.yAcceleration = y;
+    }
 
     /**
-     * Gets the current look direction of the entity in RADIANS.
+     * Sets the deceleration rate of this game entity.
+     * @param decel
      */
-    getAngle(): number;
+    public setDeceleration(decel: number): void {
+        this.deceleration = decel;
+    }
 
     /**
-     * Sets the current look direction of the entity in RADIANS.
-     * @param {number} angle
+     * Sets the lag compensation "tweak" velocity of this entity
+     * @param velocity
+     * @param compensateFrames
      */
-    setAngle(angle: number): void;
+    public setLagCompensateVelocity(velocity: Point, compensateFrames: number): void {
+        this.xCompensateVelocity = velocity.getX();
+        this.yCompensateVelocity = velocity.getY();
+        this.compensateFrames = compensateFrames;
+    }
 
     /**
-     * Sets the lag compensation velocity. This is velocity that is added separately to the main
-     * velocity for the purposes of correcting entity position over time.
-     * @param {Point} velocity
-     * @param {number} numFrames
+     * Gets the current look direction of the player in RADIANS.
      */
-    setLagCompensateVelocity(velocity: Point, numFrames: number);
+    public getAngle(): number {
+        return this.angles;
+    }
+
+    /**
+     * Sets the player look angle.
+     * @param angle
+     */
+    public setAngle(angle: number): void {
+        this.angles = angle;
+    }
+
+    public update(elapsedTime: number): void {
+        let multiplier: number = elapsedTime / 1000.0;
+
+        this.updateVelocity(multiplier);
+        this.capVelocity();
+        this.updatePosition(multiplier);
+    }
+
+    private updateVelocity(multiplier: number): void {
+        if(this.xAcceleration < 0.1) {
+            this.xVelocity -= multiplier * this.deceleration;
+        }
+        else {
+            this.xVelocity += multiplier * this.xAcceleration;
+        }
+
+        if(this.yAcceleration < 0.1) {
+            this.yVelocity -= multiplier * this.deceleration;
+        }
+        else {
+            this.yVelocity += multiplier * this.yAcceleration;
+        }
+    }
+
+    private capVelocity(): void {
+        if(Math.abs(this.xVelocity) < 0.1) {
+            this.xVelocity = 0;
+        }
+        else if(this.xVelocity > this.max_velocity) {
+            this.xVelocity = this.max_velocity;
+        }
+        else if(this.xVelocity < -this.max_velocity) {
+            this.xVelocity = -this.max_velocity;
+        }
+
+        if(Math.abs(this.yVelocity) < 0.1) {
+            this.yVelocity = 0;
+        }
+        else if(this.yVelocity > this.max_velocity) {
+            this.yVelocity = this.max_velocity;
+        }
+        else if(this.yVelocity < -this.max_velocity) {
+            this.yVelocity = -this.max_velocity;
+        }
+    }
+
+    private updatePosition(multiplier: number): void {
+        if(this.compensateFrames == 0) {
+            this.xPosition += multiplier * this.xVelocity;
+            this.yPosition += multiplier * this.yVelocity;
+        }
+        else {
+            this.xPosition += multiplier * (this.xVelocity + this.xCompensateVelocity);
+            this.yPosition += multiplier * (this.yVelocity + this.yCompensateVelocity);
+
+            this.compensateFrames--;
+        }
+    }
 }

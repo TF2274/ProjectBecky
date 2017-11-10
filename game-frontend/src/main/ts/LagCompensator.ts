@@ -83,7 +83,6 @@ class LagCompensator {
         let velocity: Point = new Point(playerInfo.velX, playerInfo.velY);
         velocity.addX(multiplier * playerInfo.accelX);
         velocity.addY(multiplier * playerInfo.accelY);
-        ClientPlayer.capVelocity(velocity); //cap velocity for us
         let position: Point = new Point(playerInfo.posX, playerInfo.posY);
         position.addX(velocity.getX() * multiplier);
         position.addY(velocity.getY() * multiplier);

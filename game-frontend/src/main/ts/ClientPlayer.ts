@@ -7,10 +7,13 @@
  * Represents the current player. The avatar being controlled by the user.
  * See OpponentPlayer for the other players.
  */
-class ClientPlayer implements Player, Updateable, GameEntity {
+class ClientPlayer extends Player implements Renderable {
     static acceleration: number = 1800;
-    static max_velocity: number = 450;
 
+    /**
+     * Static information. This is the draw information.
+     * @type {[Point,Point,Point,Point,Point,Point]}
+     */
     private static points: Point[] = [
         new Point(0, -32),
         new Point(12, -10),
@@ -33,94 +36,24 @@ class ClientPlayer implements Player, Updateable, GameEntity {
     private static secondaryLineColor: string = "#00c100";
     private static leftLegTip: number = 4;
     private static rightLegTip: number = 2;
-    private static legElongateRatio: number = 5.0 / ClientPlayer.max_velocity;
+    private static legElongateRatio: number = 5.0 / Player.max_velocity;
 
-    private position: Point;
-    private acceleration: Point;
-    private velocity: Point;
-    private lagCompensateVelocity: Point;
-    private lagCompensateFrames: number;
-    private parent: GameEntity;
-    private angle: number; //radian angle player is aiming towards
     private moveUp: boolean;
     private moveDown: boolean;
     private moveLeft: boolean;
     private moveRight: boolean;
     private shooting: boolean;
-    private username: string;
-    private score: number = 0;
-    private health: number = 100;
     private transformedPoints: Point[] = [];
 
     constructor(parent: GameEntity, x: number = 0, y: number = 0, angle: number = 0, username: string) {
-        this.position = new Point(x, y);
-        this.velocity = new Point(0, 0);
-        this.acceleration = new Point(0, 0);
-        this.lagCompensateVelocity = new Point(0, 0);
-        this.lagCompensateFrames = 0;
-        this.angle = angle;
-        this.parent = parent;
-        this.username = username;
+        super(username);
+        this.setAngle(angle);
+        this.setPosition(x, y);
+        this.setParentEntity(parent);
 
         for(let i = 0; i < ClientPlayer.points.length; i++) {
             this.transformedPoints[i] = new Point();
         }
-    }
-
-    public getUsername(): string {
-        return this.username;
-    }
-
-    public getXPosition = (): number => {
-        return this.position.getX();
-    }
-
-    public getYPosition = (): number => {
-        return this.position.getY();
-    }
-
-    public getXVelocity = (): number => {
-        return this.velocity.getX();
-    }
-
-    public getYVelocity = (): number => {
-        return this.velocity.getY();
-    }
-
-    public getXAcceleration = (): number => {
-        return this.acceleration.getX();
-    }
-
-    public getYAcceleration = (): number => {
-        return this.acceleration.getY();
-    }
-
-    public setVelocity = (x: number, y: number): void => {
-        this.velocity.setX(x);
-        this.velocity.setY(y);
-    }
-
-    public setLagCompensateVelocity(velocity: Point, frames: number): void {
-        this.lagCompensateVelocity = velocity;
-        this.lagCompensateFrames = frames;
-    }
-
-    public setAcceleration = (x: number, y: number): void => {
-        this.acceleration.setX(x);
-        this.acceleration.setY(y);
-    }
-
-    public setPosition = (x: number, y: number): void => {
-        this.position.setX(x);
-        this.position.setY(y);
-    }
-
-    public getAngle = (): number => {
-        return this.angle;
-    }
-
-    public setAngle = (angle: number): void => {
-        this.angle = angle;
     }
 
     public getMovingUp = (): boolean => {
@@ -141,30 +74,22 @@ class ClientPlayer implements Player, Updateable, GameEntity {
 
     public setMoveUp = (up: boolean): void => {
         this.moveUp = up;
-        this.acceleration.setY(-ClientPlayer.acceleration);
+        this.yAcceleration = -ClientPlayer.acceleration;
     }
 
     public setMoveDown = (down: boolean): void => {
         this.moveDown = down;
-        this.acceleration.setY(ClientPlayer.acceleration);
+        this.yAcceleration = ClientPlayer.acceleration;
     }
 
     public setMoveLeft = (left: boolean): void => {
         this.moveLeft = left;
-        this.acceleration.setX(ClientPlayer.acceleration);
+        this.xAcceleration = ClientPlayer.acceleration;
     }
 
     public setMoveRight = (right: boolean): void => {
         this.moveRight = right;
-        this.acceleration.setX(-ClientPlayer.acceleration);
-    }
-
-    public getChildEntities = (): Set<GameEntity> => {
-        return new Set<GameEntity>();
-    }
-
-    public getParentEntity = (): GameEntity => {
-        return this.parent;
+        this.xAcceleration = -ClientPlayer.acceleration;
     }
 
     public setShooting = (shooting: boolean): void => {
@@ -173,22 +98,6 @@ class ClientPlayer implements Player, Updateable, GameEntity {
 
     public isShooting = (): boolean => {
         return this.shooting;
-    }
-
-    public setScore = (score: number): void => {
-        this.score = score;
-    }
-
-    public getScore = (): number => {
-        return this.score;
-    }
-
-    public setHealth = (health: number): void => {
-        this.health = health;
-    }
-
-    public getHealth = () => {
-        return this.health;
     }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
@@ -229,92 +138,6 @@ class ClientPlayer implements Player, Updateable, GameEntity {
 
     }
 
-    public update(elapsedTime: number): void {
-        //this.updateVelocity(fracSecond);
-        if(LagCompensator.enabled) {
-            let fracSecond: number = elapsedTime / 1000.0;
-            this.updateVelocity(fracSecond);
-            this.updatePosition(fracSecond);
-        }
-    }
-
-    private updateVelocity(fracSecond: number): void {
-        //x component
-        if(Math.abs(this.acceleration.getX()) < 0.05) {
-            //decelerating
-            if(this.velocity.getX() > 0.05) {
-                this.velocity.addX(-ClientPlayer.acceleration * fracSecond);
-                if(this.velocity.getX() < 0.0) {
-                    this.velocity.setX(0);
-                }
-            }
-            else {
-                this.velocity.addX(ClientPlayer.acceleration * fracSecond);
-                if(this.velocity.getX() > 0.0) {
-                    this.velocity.setX(0);
-                }
-            }
-        }
-        else {
-            //accelerating
-            this.velocity.addX(this.acceleration.getX() * fracSecond);
-        }
-
-        //y component
-        if(Math.abs(this.acceleration.getY()) < 0.05) {
-            //decelerating
-            if(this.velocity.getY() > 0.05) {
-                this.velocity.addY(-ClientPlayer.acceleration * fracSecond);
-                if(this.velocity.getY() < 0.0) {
-                    this.velocity.setY(0);
-                }
-            }
-            else {
-                this.velocity.addY(ClientPlayer.acceleration * fracSecond);
-                if(this.velocity.getY() > 0.0) {
-                    this.velocity.setY(0);
-                }
-            }
-        }
-        else {
-            //accelerating
-            this.velocity.addY(this.acceleration.getY() * fracSecond);
-        }
-
-        //cap velocity
-        ClientPlayer.capVelocity(this.velocity);
-    }
-
-    static capVelocity(velocity: Point): void {
-        //cap velocity
-        if(velocity.getX() > ClientPlayer.max_velocity) {
-            velocity.setX(ClientPlayer.max_velocity);
-        }
-        else if(velocity.getX() < -ClientPlayer.max_velocity) {
-            velocity.setX(-ClientPlayer.max_velocity);
-        }
-        if(velocity.getY() > ClientPlayer.max_velocity) {
-            velocity.setY(ClientPlayer.max_velocity);
-        }
-        else if(velocity.getY() < -ClientPlayer.max_velocity) {
-            velocity.setY(-ClientPlayer.max_velocity);
-        }
-    }
-
-    private updatePosition(fracSecond: number): void {
-        //update position
-        this.position.addX((this.velocity.getX() + this.lagCompensateVelocity.getX()) * fracSecond);
-        this.position.addY((this.velocity.getY() + this.lagCompensateVelocity.getY()) * fracSecond);
-
-        if(this.lagCompensateFrames > 0) {
-            this.lagCompensateFrames--;
-            if(this.lagCompensateFrames == 0) {
-                this.lagCompensateVelocity.setX(0);
-                this.lagCompensateVelocity.setY(0);
-            }
-        }
-    }
-
     private preparePoints(): void {
         //copy over the original positions of the points
         for(let i = 0; i < ClientPlayer.points.length; i++) {
@@ -327,7 +150,7 @@ class ClientPlayer implements Player, Updateable, GameEntity {
         //set the leg points
         let leftLegPoint: Point = this.transformedPoints[ClientPlayer.leftLegTip];
         let rightLegPoint: Point = this.transformedPoints[ClientPlayer.rightLegTip];
-        let legElongateAmount: number = ClientPlayer.legElongateRatio * (Math.abs(this.velocity.getX()) + Math.abs(this.velocity.getY()));
+        let legElongateAmount: number = ClientPlayer.legElongateRatio * (Math.abs(this.xVelocity) + Math.abs(this.yVelocity));
 
         leftLegPoint.addX(legElongateAmount);
         leftLegPoint.addY(legElongateAmount);
@@ -336,8 +159,8 @@ class ClientPlayer implements Player, Updateable, GameEntity {
     }
 
     private rotatePoints(): void {
-        let sinAngle: number = Math.sin(this.angle + Math.PI/2.0);
-        let cosAngle: number = Math.cos(this.angle + Math.PI/2.0);
+        let sinAngle: number = Math.sin(this.angles + Math.PI/2.0);
+        let cosAngle: number = Math.cos(this.angles + Math.PI/2.0);
 
         //rotate all of the points around the origin
         //It is assumed the points have not been transformed

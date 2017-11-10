@@ -4,67 +4,43 @@
 ///<reference path="./collections/Point.ts"/>
 ///<reference path="./collections/Set.ts"/>
 
-abstract class Npc implements GameEntity, Updateable, Renderable {
+abstract class Npc extends GameEntity implements Renderable {
     static STATE_NEW_NPC: number = 111;
     static STATE_UPDATE_NPC: number = 112;
     static STATE_DEAD_NPC: number = 113;
 
-    protected position: Point = new Point(0, 0);
-    protected velocity: Point = new Point(0, 0);
-    protected acceleration: Point = new Point(0, 0);
-    protected angle: number = 0;
     protected health: number;
     protected npcId: number;
     protected parent: GameEntity;
     protected compensationVelocity: Point = new Point(0, 0);
     protected compensationFrames: number = 0;
-    protected max_velocity: number = 0;
 
-    constructor(parent: GameEntity, npcId: number) {
+    protected constructor(parent: GameEntity, npcId: number, max_velocity: number) {
+        super(max_velocity);
         this.parent = parent;
         this.npcId = npcId;
     }
 
-    public getChildEntities(): Set<GameEntity> {
-        return new Set<GameEntity>();
-    }
-
-    public getParentEntity(): GameEntity {
-        return this.parent;
-    }
-
-    public getXPosition(): number {
-        return this.position.getX();
-    }
-
-    public getYPosition(): number {
-        return this.position.getY();
-    }
-
-    public getXVelocity(): number {
-        return this.velocity.getX();
-    }
-
-    public getYVelocity(): number {
-        return this.velocity.getY();
-    }
-
-    public getXAcceleration(): number {
-        return this.acceleration.getX();
-    }
-
-    public getYAcceleration(): number {
-        return this.acceleration.getY();
-    }
-
+    /**
+     * Gets this NPCs health
+     * @returns {number}
+     */
     public getHealth(): number {
         return this.health;
     }
 
+    /**
+     * Sets this NPCs health
+     * @param health
+     */
     public setHealth(health: number): void {
         this.health = health;
     }
 
+    /**
+     * Gets this NPCs id
+     * @returns {number}
+     */
     public getNpcId(): number {
         return this.npcId;
     }
@@ -121,20 +97,4 @@ abstract class Npc implements GameEntity, Updateable, Renderable {
     }
 
     abstract draw(context: CanvasRenderingContext2D, screenOrigin: Point): void;
-
-    private capVelocity(): void {
-        if(this.velocity.getX() > this.max_velocity) {
-            this.velocity.setX(this.max_velocity);
-        }
-        else if(this.velocity.getX() < -this.max_velocity) {
-            this.velocity.setX(-this.max_velocity);
-        }
-
-        if(this.velocity.getY() > this.max_velocity) {
-            this.velocity.setY(this.max_velocity);
-        }
-        else if(this.velocity.getY() < -this.max_velocity) {
-            this.velocity.setY(-this.max_velocity);
-        }
-    }
 }

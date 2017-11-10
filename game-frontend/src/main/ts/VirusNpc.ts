@@ -4,6 +4,7 @@
 ///<reference path="./LagCompensator.ts"/>
 
 class VirusNpc extends Npc {
+    private static max_velocity: number = 200;
     private static firstLegIndex: number = 11;
     private static drawPoints: Point[] = [
         new Point(-12, -20),
@@ -24,8 +25,7 @@ class VirusNpc extends Npc {
     private transformedPoints: Point[] = [];
 
     constructor(parent: GameEntity, npcId: number) {
-        super(parent, npcId);
-        this.max_velocity = 250.0;
+        super(parent, npcId, VirusNpc.max_velocity);
 
         //init the point objects for the transformed points
         for(let i = 0; i < 13; i++) {
@@ -72,7 +72,7 @@ class VirusNpc extends Npc {
     }
 
     private setLegEndpoints(): void {
-        let speedSquared: number = Math.pow(this.getXVelocity(), 2) + Math.pow(this.getYVelocity(), 2);
+        let speedSquared: number = Math.pow(this.xVelocity, 2) + Math.pow(this.yVelocity, 2);
         let changeX: number = Math.min(4.0, 0.000128 * speedSquared);
         let changeY: number = Math.min(1.0, 0.000064 * speedSquared);
 
@@ -85,8 +85,8 @@ class VirusNpc extends Npc {
     }
 
     private rotatePoints(): void {
-        let sinAngle: number = Math.sin(super.getAngle());
-        let cosAngle: number = Math.cos(super.getAngle());
+        let sinAngle: number = Math.sin(this.angles);
+        let cosAngle: number = Math.cos(this.angles);
 
         //this is the first points, which excludes the leg endpoints
         for(let i = 0; i < VirusNpc.firstLegIndex; i++) {
@@ -110,8 +110,8 @@ class VirusNpc extends Npc {
         let tY: number = screenOrigin.getY();
 
         for(let i = 0; i < this.transformedPoints.length; i++) {
-            this.transformedPoints[i].addX(super.getXPosition() - tX);
-            this.transformedPoints[i].addY(super.getYPosition() - tY);
+            this.transformedPoints[i].addX(this.xPosition - tX);
+            this.transformedPoints[i].addY(this.yPosition - tY);
         }
     }
 }

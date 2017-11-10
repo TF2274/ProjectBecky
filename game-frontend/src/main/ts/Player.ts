@@ -1,48 +1,54 @@
-///<reference path="./Renderable.ts"/>
-
 /**
  * Represents any player. Either the current player or any opponent player.
  */
-interface Player extends Renderable, GameEntity {
+abstract class Player extends GameEntity {
+    protected static max_velocity: number = 450;
+
+    protected username: string = null;
+    protected score: number = 0;
+    protected health: number = 10;
+
+    protected constructor(username: string) {
+        super(Player.max_velocity);
+        this.username = username;
+    }
+
     /**
      * Gets the username of the player
      */
-    getUsername(): string;
+    public getUsername(): string {
+        return this.username;
+    }
 
     /**
-     * Sets the player look angle.
-     * @param angle
-     */
-    setAngle(angle: number): void;
-
-    /**
-     * Sets the position of the player.
-     * @param x
-     * @param y
-     */
-    setPosition(x: number, y: number): void;
-
-    /**
-     * Gets this player's score
+     * Gets this player's score.
      * @returns {number}
      */
-    getScore(): number;
+    public getScore(): number {
+         return this.score;
+    }
 
     /**
-     * Sets this player's score.
-     * @param {number} score
+     * Sets the score of this player.
+     * @param score
      */
-    setScore(score: number): void;
+    public setScore(score: number): void {
+        this.score = score;
+    }
 
     /**
-     * Gets player health
+     * Gets this player's current health
      * @returns {number}
      */
-    getHealth(): number;
+    public getHealth(): number {
+        return this.health;
+    }
 
     /**
-     * Sets player health
-     * @param {number} health
+     * Sets this player's health
+     * @param health
      */
-    setHealth(health: number): void;
+    public setHealth(health: number): void {
+        this.health = health;
+    }
 }

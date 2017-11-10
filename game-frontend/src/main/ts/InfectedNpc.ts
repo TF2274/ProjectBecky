@@ -4,6 +4,7 @@
 ///<reference path="./LagCompensator.ts"/>
 
 class InfectedNpc extends Npc {
+    private static max_velocity: number = 150.0;
     static rpm: number = 4;
     static angleDelta: number = (2 * Math.PI * InfectedNpc.rpm) / (60 * 1000);
     static radius: number = 16;
@@ -14,16 +15,15 @@ class InfectedNpc extends Npc {
     private widthExpand: boolean = true;
 
     constructor(parent: GameEntity, npcId: number) {
-        super(parent, npcId);
-        this.angle = 0;
-        this.max_velocity = ClientPlayer.max_velocity / 3.0;
+        super(parent, npcId, InfectedNpc.max_velocity);
+        this.angles = 0;
     }
 
     public setAngle(angle: number): void {/* Do nothing */}
 
     public update(elapsedTime: number): void {
         //update the angle of this npc
-        this.angle += InfectedNpc.angleDelta * elapsedTime;
+        this.angles += InfectedNpc.angleDelta * elapsedTime;
 
         //update the special width value
         this.totalTime += elapsedTime;
@@ -43,14 +43,12 @@ class InfectedNpc extends Npc {
             }
         }
 
-        //call the super update method if lag compensation is enabled
-        if(LagCompensator.enabled) {
-            super.update(elapsedTime);
-        }
+        //call the super update method
+        super.update(elapsedTime);
     }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
-        let screenPosition: Point = new Point(this.position.getX() - screenOrigin.getX(), this.position.getY() - screenOrigin.getY());
+        let screenPosition: Point = new Point(this.xPosition - screenOrigin.getX(), this.yPosition - screenOrigin.getY());
         if(screenPosition.getX() < -InfectedNpc.radius || screenPosition.getY() < -InfectedNpc.radius ||
            screenPosition.getX() > context.canvas.width + InfectedNpc.radius || screenPosition.getY() > context.canvas.height + InfectedNpc.radius) {
             return;
@@ -60,7 +58,7 @@ class InfectedNpc extends Npc {
         context.beginPath()
         context.ellipse(screenPosition.getX(), screenPosition.getY(),
                         InfectedNpc.radius + this.extraWidth, InfectedNpc.radius - this.extraWidth,
-                        this.angle, 0, 2 * Math.PI);
+                        this.angles, 0, 2 * Math.PI);
         //context.arc(screenPosition.getX(), screenPosition.getY(), 32, 0, 2*Math.PI, false);
         context.fillStyle = "#baff00";
         context.fill();
