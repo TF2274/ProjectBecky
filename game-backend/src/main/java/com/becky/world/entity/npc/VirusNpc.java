@@ -10,12 +10,10 @@ import java.awt.geom.Point2D;
  * Created by Clayton Hunsinger on 10/26/2017.
  */
 public class VirusNpc extends Npc {
-    private boolean positiveX;
-    private boolean positiveY;
     private boolean xStopped;
     private boolean yStopped;
-    private boolean readyForNextDirection = true;
-    private boolean readyForNextTurn = false;
+    private boolean readyForNextDirection = false;
+    private boolean readyForNextTurn = true;
     private boolean makingTurn = false;
     private final Point2D.Float nextVelocity = new Point2D.Float();
     private float nextAngle = 0.0f;
@@ -24,7 +22,7 @@ public class VirusNpc extends Npc {
 
     protected VirusNpc(final NewGameWorld gameWorld) {
         super(gameWorld);
-        super.collisionRadius = 18;
+        super.collisionRadius = 28;
         super.maxVelocity = 250.0f;
         super.npcHealth = 5;
         super.pointsValue = 2;
@@ -36,44 +34,34 @@ public class VirusNpc extends Npc {
 
     @Override
     public void tick(final long elapsedTime) {
+        //NPC is ready to make the next "push" through the world
+        //The NPC is ready, but will wait until a certain amount of time
+        //has passed before actually moving.
         if(readyForNextDirection) {
             if(timeTilNextMove <= 0) {
                 super.velocity.x = nextVelocity.x;
                 super.velocity.y = nextVelocity.y;
-                positiveX = super.velocity.x >= 0.0f;
-                positiveY = super.velocity.y >= 0.0f;
-
-                if (super.velocity.x > 0.0f) {
-                    super.acceleration.x = -100.0f;
-                    super.velocity.x += 50.0f;
-                } else {
-                    super.acceleration.x = 100.0f;
-                    super.velocity.x -= 50.0f;
-                }
-                if (super.velocity.y > 0.0f) {
-                    super.acceleration.y = -100.0f;
-                    super.velocity.y += 50.0f;
-                } else {
-                    super.acceleration.y = 100.0f;
-                    super.velocity.y -= 50.0f;
-                }
-
+                super.acceleration.x = 0.0f;
+                super.acceleration.y = 0.0f;
                 xStopped = false;
                 yStopped = false;
                 readyForNextDirection = false;
                 timeTilNextMove = 0L;
-                return;
+                super.deceleration = 100.0f;
             }
             else {
                 timeTilNextMove -= elapsedTime;
-                return;
             }
+            return;
         }
 
+        //The NPC is ready to turn in a different direction before moving
+        //and must determine which direction to turn in as well as the next
+        //velocity to "push" in
         if(readyForNextTurn) {
             //determine the next velocity and next angle
-            nextVelocity.x = ((float) Math.random() * 400.0f) - 200.0f;
-            nextVelocity.y = ((float) Math.random() * 400.0f) - 200.0f;
+            nextVelocity.x = ((float) Math.random() * 500.0f) - 250.0f;
+            nextVelocity.y = ((float) Math.random() * 500.0f) - 250.0f;
             nextAngle = (float) StrictMath.atan2(nextVelocity.y, nextVelocity.x) + (float)Math.PI/2.0f;
             nextAngle = MathUtils.normalizeAngle(nextAngle);
 
@@ -89,10 +77,14 @@ public class VirusNpc extends Npc {
             //change the states
             makingTurn = true;
             readyForNextTurn = false;
+            super.deceleration = 0.0f;
             return;
         }
 
+        //NPC in the middle of actually changing direction
         if(makingTurn) {
+            super.velocity.x = 0.0f;
+            super.velocity.y = 0.0f;
             final float angleChange = (float)Math.PI * (elapsedTime/1000.0f) * turnDirection;
             super.angles = MathUtils.normalizeAngle(super.angles);
             if(Math.abs(super.angles - nextAngle) <= Math.abs(angleChange)) {
@@ -106,38 +98,23 @@ public class VirusNpc extends Npc {
             return;
         }
 
-        final float multiplier = elapsedTime / 1000.0f;
-        super.velocity.x += super.acceleration.x * multiplier;
-        super.velocity.y += super.acceleration.y * multiplier;
+        //NPC is in the process of moving
+        super.tick(elapsedTime);
 
-        if(xStopped || positiveX != super.velocity.x >= 0.0f) {
-            super.velocity.x = 0.0f;
+        //Check if NPC has stopped in both directions
+        if(!xStopped && Math.abs(velocity.x) < 0.5) {
             xStopped = true;
         }
-        if(yStopped || positiveY != super.velocity.y >= 0.0f) {
-            super.velocity.y = 0.0f;
+        if(!yStopped && Math.abs(velocity.y) < 0.5) {
             yStopped = true;
         }
+
         if(xStopped && yStopped) {
             readyForNextTurn = true;
             timeTilNextMove = 50L;
+            super.deceleration = 0.0f;
         }
-
-        super.position.x += super.velocity.x * multiplier;
-        super.position.y += super.velocity.y * multiplier;
     }
-
-    @Override
-    public void setXAcceleration(final float acceleration) {}
-
-    @Override
-    public void setYAcceleration(final float acceleration) {}
-
-    @Override
-    public void setXVelocity(final float velocity) {}
-
-    @Override
-    public void setYVelocity(final float velocity) {}
 
     public static class VirusNpcSpawnRules extends SpawnRules {
         private static final int POPULATION_CAP = 300;

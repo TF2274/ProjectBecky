@@ -16,6 +16,10 @@ public class MathUtils {
     public static float getAngleBetweenEntities(final GameEntity first, final GameEntity second) {
         final float deltaX = first.getXPosition() - second.getXPosition();
         final float deltaY = first.getYPosition() - second.getYPosition();
+        if(deltaX == 0.0f && deltaY == 0.0f) {
+            return 0.0f;
+        }
+
         return (float)StrictMath.atan2(deltaY, deltaX);
     }
 

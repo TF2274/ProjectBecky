@@ -43,6 +43,8 @@ public class Player extends GameEntity {
         this.connection = connection;
         this.authenticationString = authenticationString;
         this.collisionRadius = 32;
+        super.maxVelocity = MAX_VELOCITY;
+        super.deceleration = ACCELERATION;
     }
 
     public String getAuthenticationString() {
@@ -69,10 +71,6 @@ public class Player extends GameEntity {
         this.health = Math.max(health, 0);
         this.healthAffectedBy = attackerUsername == null ? "" : attackerUsername;
         this.playerHealthUpdated = true;
-    }
-
-    public void setCollisionRadius(final int radius) {
-        this.collisionRadius = radius;
     }
 
     public void setUsernameFinal() {
@@ -124,79 +122,13 @@ public class Player extends GameEntity {
 
     @Override
     public void tick(final long elapsedTime) {
-        tickVelocity(elapsedTime);
         tickShooting();
+        super.tick(elapsedTime);
     }
 
     private void tickShooting() {
         if(firingWeapon) {
             playerGun.fire();
-        }
-    }
-
-    private void tickVelocity(final long elapsedTime) {
-        final float fraction = elapsedTime/1000.0f;
-
-        //floats don't do well with ==
-        //x component
-        if(Math.abs(super.acceleration.x) < 0.05f) {
-            //decelerating
-            if(super.velocity.x > 0.0f) {
-                super.velocity.x -= Player.ACCELERATION * fraction;
-                if(super.velocity.x < 0.0f) {
-                    super.velocity.x = 0.0f;
-                }
-            }
-            else {
-                super.velocity.x += Player.ACCELERATION * fraction;
-                if(super.velocity.x > 0.0f) {
-                    super.velocity.x = 0.0f;
-                }
-            }
-        }
-        else {
-            //accelerating
-            super.velocity.x += super.acceleration.x * fraction;
-        }
-
-        //y component
-        if(Math.abs(super.acceleration.y) < 0.5f) {
-            //decelerating
-            if(super.velocity.y > 0) {
-                super.velocity.y -= Player.ACCELERATION * fraction;
-                if(super.velocity.y < 0.0f) {
-                    super.velocity.y = 0.0f;
-                }
-            }
-            else {
-                super.velocity.y += Player.ACCELERATION * fraction;
-                if(super.velocity.y > 0.0f) {
-                    super.velocity.y = 0.0f;
-                }
-            }
-        }
-        else {
-            //accelerating
-            super.velocity.y += super.acceleration.y * fraction;
-        }
-
-        capVelocity();
-        super.position.x += super.velocity.x * fraction;
-        super.position.y += super.velocity.y * fraction;
-    }
-
-    private void capVelocity() {
-        if(this.velocity.x > MAX_VELOCITY) {
-            super.velocity.x = MAX_VELOCITY;
-        }
-        else if(this.velocity.x < -MAX_VELOCITY) {
-            super.velocity.x = -MAX_VELOCITY;
-        }
-        if(this.velocity.y > MAX_VELOCITY) {
-            super.velocity.y = MAX_VELOCITY;
-        }
-        else if(this.velocity.y < -MAX_VELOCITY) {
-            super.velocity.y = -MAX_VELOCITY;
         }
     }
 }

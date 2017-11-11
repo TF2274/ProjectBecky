@@ -1,6 +1,6 @@
 package com.becky.world;
 
-import com.becky.networking.PlayerMessageTransmitter;
+import com.becky.networking.MessageTransmitter;
 import com.becky.networking.message.BulletInfo;
 import com.becky.networking.message.HighscoreInfo;
 import com.becky.networking.message.NpcInfo;
@@ -33,7 +33,7 @@ public class NewGameWorld implements Runnable {
     private final HashMap<String, Player> deadPlayers = new HashMap<>();
     private final List<GameEntity> gameEntities = new ArrayList<>();
     private final List<PhysicsFilter> physicsFilters = new ArrayList<>();
-    private final PlayerMessageTransmitter messageTransmitter = new PlayerMessageTransmitter();
+    private final MessageTransmitter messageTransmitter = new MessageTransmitter();
     private final List<WorldEventListener> worldEventListeners = new ArrayList<>();
     private final NpcSpawner spawner = new NpcSpawner(this);
     private final Point2D.Float worldDimension = new Point2D.Float(8000.0f, 8000.0f);
@@ -352,7 +352,7 @@ public class NewGameWorld implements Runnable {
         this.transmitHighscores();
     }
 
-    public PlayerMessageTransmitter getMessageTransmitter() {
+    public MessageTransmitter getMessageTransmitter() {
         return this.messageTransmitter;
     }
 

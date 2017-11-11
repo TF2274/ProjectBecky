@@ -2,8 +2,6 @@ package com.becky.world.entity;
 
 import com.becky.world.physics.WorldBorderCollisionDetector;
 
-import java.awt.geom.Point2D;
-
 /**
  * Defines a type of bullet shot by a player
  */
@@ -73,18 +71,18 @@ public abstract class Bullet extends GameEntity {
 
     @Override
     public void setXVelocity(final float xVelocity) {
-        velocity.x = xVelocity;
         if(Math.abs(xVelocity) < 0.1f) {
             this.state = STATE_DEAD_BULLET;
         }
+        super.setXVelocity(xVelocity);
     }
 
     @Override
     public void setYVelocity(final float yVelocity) {
-        velocity.y = yVelocity;
         if(Math.abs(yVelocity) < 0.1f) {
             this.state = STATE_DEAD_BULLET;
         }
+        super.setYVelocity(yVelocity);
     }
 
     @Override
@@ -102,14 +100,6 @@ public abstract class Bullet extends GameEntity {
 
     @Override
     public void setYAcceleration(final float yAcceleration) { }
-
-    public int getCollisionRadius() {
-        return this.collisionRadius;
-    }
-
-    public void setCollisionRadius(final int radius) {
-        this.collisionRadius = radius;
-    }
 
     @Override
     public void tick(final long elapsedTime) {

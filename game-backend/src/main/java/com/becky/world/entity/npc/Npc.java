@@ -13,7 +13,6 @@ public abstract class Npc extends GameEntity {
 
     private int npcState = NPC_STATE_NEW;
     protected int npcHealth;
-    protected float maxVelocity;
     protected int pointsValue = 0;
 
     protected Npc(final NewGameWorld gameWorld) {
@@ -54,61 +53,5 @@ public abstract class Npc extends GameEntity {
 
     public int getNpcPointsValue() {
         return this.pointsValue;
-    }
-
-    @Override
-    public void tick(final long elapsedTime) {
-        final float multiplier = elapsedTime / 1000.0f;
-        super.velocity.x += super.acceleration.x * multiplier;
-        super.velocity.y += super.acceleration.y * multiplier;
-
-        if(Math.abs(super.acceleration.x) < 0.1f) {
-            if(super.velocity.x < 0.0f) {
-                super.velocity.x += super.velocity.x * multiplier;
-                if(super.velocity.x > 0.0f) {
-                    super.velocity.x = 0.0f;
-                }
-            }
-            else {
-                super.velocity.x -= super.velocity.x * multiplier;
-                if(super.velocity.x < 0.0f) {
-                    super.velocity.x = 0.0f;
-                }
-            }
-        }
-        if(Math.abs(super.acceleration.y) < 0.1f) {
-            if(super.velocity.y < 0.0f) {
-                super.velocity.y += super.velocity.y * multiplier;
-                if(super.velocity.y > 0.0f) {
-                    super.velocity.y = 0.0f;
-                }
-            }
-            else {
-                super.velocity.y -= super.velocity.y * multiplier;
-                if(super.velocity.y < 0.0f) {
-                    super.velocity.y = 0.0f;
-                }
-            }
-        }
-
-        this.capVelocity();
-        super.position.x += super.velocity.x * multiplier;
-        super.position.y += super.velocity.y * multiplier;
-    }
-
-    private void capVelocity() {
-        if(super.velocity.x > maxVelocity) {
-            super.velocity.x = maxVelocity;
-        }
-        else if(super.velocity.x < -maxVelocity) {
-            super.velocity.x = -maxVelocity;
-        }
-
-        if(super.velocity.y > maxVelocity) {
-            super.velocity.y = maxVelocity;
-        }
-        else if(super.velocity.y < -maxVelocity) {
-            super.velocity.y = -maxVelocity;
-        }
     }
 }

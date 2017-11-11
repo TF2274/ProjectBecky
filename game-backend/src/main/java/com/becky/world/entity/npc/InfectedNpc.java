@@ -23,6 +23,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
         super.collisionRadius = 16;
         super.npcHealth = 15;
         super.pointsValue = 25;
+        super.deceleration = ACCELERATION;
         world.addWorldEventListener(this);
     }
 

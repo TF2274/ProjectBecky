@@ -50,7 +50,7 @@ class VirusNpc extends Npc {
         //translate the points to screen space
         this.setLegEndpoints();
         this.vectorDraw.setLocalSpacePoints(this.transformedPoints);
-        this.vectorDraw.translateToWorldSpace(this.xPosition, this.yPosition, this.angles);
+        this.vectorDraw.translateToWorldSpace(this.xPosition, this.yPosition, this.angles - Math.PI/2.0);
         this.vectorDraw.translateToScreenSpace(screenOrigin.getX(), screenOrigin.getY());
 
         //prepare background draw colors and style
@@ -69,15 +69,25 @@ class VirusNpc extends Npc {
     }
 
     private setLegEndpoints(): void {
+        //copy initial points
+        for(let i = 0; i < 11; i++) {
+            let p: Point = this.transformedPoints[i];
+            let q: Point = VirusNpc.drawPoints[i];
+            p.setX(q.getX());
+            p.setY(q.getY());
+        }
+
         let speedSquared: number = Math.pow(this.xVelocity, 2) + Math.pow(this.yVelocity, 2);
         let changeX: number = Math.min(4.0, 0.000128 * speedSquared);
         let changeY: number = Math.min(1.0, 0.000064 * speedSquared);
 
         //note, still working with local points as in, points that have not
         //been transformed or rotated
-        this.transformedPoints[11].setX(-8 + changeX);
-        this.transformedPoints[11].setY(15 + changeY);
-        this.transformedPoints[12].setX(8 - changeX);
-        this.transformedPoints[12].setY(15 + changeY);
+        let p: Point = this.transformedPoints[11];
+        let q: Point = this.transformedPoints[12];
+        p.setX(-8 + changeX);
+        p.setY(15 + changeY);
+        q.setX(8 - changeX);
+        q.setY(15 + changeY);
     }
 }

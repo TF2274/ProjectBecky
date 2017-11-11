@@ -1,6 +1,7 @@
 package com.becky.world.entity;
 
 import com.becky.world.NewGameWorld;
+import com.becky.world.entity.npc.VirusNpc;
 import com.becky.world.physics.PhysicsFilter;
 
 import java.awt.geom.Point2D;
@@ -20,6 +21,8 @@ public abstract class GameEntity {
     protected Point2D.Float velocity = new Point2D.Float();
     protected Point2D.Float acceleration = new Point2D.Float();
     protected float angles = 0.0f;
+    protected float maxVelocity = Float.POSITIVE_INFINITY;
+    protected float deceleration = 0.0f;
 
     //collisions
     protected int collisionRadius;
@@ -31,6 +34,10 @@ public abstract class GameEntity {
         entityId = entityCount;
         entityCount++;
         this.container = container;
+    }
+
+    public void setCollisionRadius(final int radius) {
+        this.collisionRadius = radius;
     }
 
     public int getCollisionRadius() {
@@ -97,7 +104,53 @@ public abstract class GameEntity {
         return this.angles;
     }
 
-    public abstract void tick(final long elapsedTime);
+    public void tick(final long elapsedTime) {
+        final float multiplier = elapsedTime / 1000.0f;
+
+        //apply acceleration to the entity
+        if(Math.abs(acceleration.x) < 0.1) {
+            if(velocity.x > 0.0f) {
+                velocity.x -= deceleration * multiplier;
+                if(velocity.x < 0.0f) {
+                    velocity.x = 0.0f;
+                }
+            }
+            else {
+                velocity.x += deceleration * multiplier;
+                if(velocity.x > 0.0f) {
+                    velocity.x = 0.0f;
+                }
+            }
+        }
+        else {
+            velocity.x += acceleration.x * multiplier;
+        }
+
+        if(Math.abs(acceleration.y) < 0.1) {
+            if(velocity.y > 0.0f) {
+                velocity.y -= deceleration * multiplier;
+                if(velocity.y < 0.0f) {
+                    velocity.y = 0.0f;
+                }
+            }
+            else {
+                velocity.y += deceleration * multiplier;
+                if(velocity.y > 0.0f) {
+                    velocity.y = 0.0f;
+                }
+            }
+        }
+        else {
+            velocity.y += acceleration.y * multiplier;
+        }
+
+        //cap velocity
+        capVelocity();
+
+        //apply velocity to the position of this entity
+        position.x += velocity.x * multiplier;
+        position.y += velocity.y * multiplier;
+    }
 
     public NewGameWorld getGameWorld() {
         return this.container;
@@ -117,5 +170,25 @@ public abstract class GameEntity {
 
     protected void addPhysicsFilter(final Class<? extends PhysicsFilter> filter) {
         filterApplies.add(filter);
+    }
+
+    protected void capVelocity() {
+        if(maxVelocity == Float.POSITIVE_INFINITY) {
+            return;
+        }
+
+        if(velocity.x > maxVelocity) {
+            velocity.x = maxVelocity;
+        }
+        else if(velocity.x < -maxVelocity) {
+            velocity.x = -maxVelocity;
+        }
+
+        if(velocity.y > maxVelocity) {
+            velocity.y = maxVelocity;
+        }
+        else if(velocity.y < -maxVelocity) {
+            velocity.y = -maxVelocity;
+        }
     }
 }

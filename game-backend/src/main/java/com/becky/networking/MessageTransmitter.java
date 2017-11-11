@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
  * Message transmitter designed to transmit messages to players.
  * Created by Clayton on 10/10/2017.
  */
-public class PlayerMessageTransmitter {
+public class MessageTransmitter {
     private final ExecutorService threadPool = Executors.newFixedThreadPool(25);
 
     public void transmitMessage(final Player client, final String message) {

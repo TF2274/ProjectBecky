@@ -7,12 +7,12 @@ import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
 import com.becky.world.entity.npc.Npc;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NpcCollisionDetector implements PhysicsFilter, WorldEventListener {
     private final List<Npc> npcs = new ArrayList<>();
-    private final List<Npc> processedNpcs = new ArrayList<>();
     private final List<Player> players = new ArrayList<>();
 
     public NpcCollisionDetector(final NewGameWorld gameWorld) {
@@ -31,19 +31,27 @@ public class NpcCollisionDetector implements PhysicsFilter, WorldEventListener {
 
     private void applyNpcCollisionWithNpc(final Npc npc) {
         for(final Npc entity: npcs) {
-            if(processedNpcs.contains(npc)) {
-                continue;
+            final float distance = MathUtils.distance(npc, entity);
+            final float radiusSum = npc.getCollisionRadius() + entity.getCollisionRadius();
+
+            if(!npc.equals(entity) && distance < radiusSum) {
+                final float collisionAngle = MathUtils.getAngleBetweenEntities(npc, entity);
+                final float halfDelta = (radiusSum - distance)/2.0f;
+                final float sin = (float)StrictMath.sin(collisionAngle);
+                final float cos = (float)StrictMath.cos(collisionAngle);
+
+                npc.setXPosition(npc.getXPosition() + cos*halfDelta);
+                npc.setYPosition(npc.getYPosition() + sin*halfDelta);
+                entity.setXPosition(entity.getXPosition() - cos*halfDelta);
+                entity.setYPosition(entity.getYPosition() - sin*halfDelta);
+
+                final float xV = npc.getXVelocity()/2;
+                final float yV = npc.getYVelocity()/2;
+                npc.setXVelocity(-xV);
+                npc.setYVelocity(-yV);
+                entity.setXVelocity(entity.getXVelocity() + xV);
+                entity.setYVelocity(entity.getYVelocity() + yV);
             }
-            if(MathUtils.distance(npc, entity) > npc.getCollisionRadius() + entity.getCollisionRadius()) {
-                continue;
-            }
-            processedNpcs.add(npc);
-            final float collisionAngle = MathUtils.getAngleBetweenEntities(npc, entity);
-            final float collisionAngle1 = MathUtils.getAngleBetweenEntities(entity, npc);
-            npc.setXVelocity(npc.getXVelocity() + 20.0f * (float)StrictMath.cos(collisionAngle));
-            npc.setYVelocity(npc.getYVelocity() + 20.0f * (float)StrictMath.sin(collisionAngle));
-            entity.setXVelocity(entity.getXVelocity() + 20.0f * (float)StrictMath.cos(collisionAngle1));
-            entity.setYVelocity(entity.getYVelocity() + 20.0f * (float)StrictMath.sin(collisionAngle1));
         }
     }
 
@@ -63,7 +71,7 @@ public class NpcCollisionDetector implements PhysicsFilter, WorldEventListener {
 
     @Override
     public void prepare() {
-        processedNpcs.clear();
+
     }
 
     @Override

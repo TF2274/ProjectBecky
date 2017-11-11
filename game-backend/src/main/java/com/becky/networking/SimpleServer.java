@@ -196,7 +196,7 @@ public class SimpleServer extends WebSocketServer {
         final String jsonMessage = listChange.jsonSerialize();
 
         final Collection<Player> allPlayers = gameInstance.getAllPlayers();
-        final PlayerMessageTransmitter transmitter = gameInstance.getMessageTransmitter();
+        final MessageTransmitter transmitter = gameInstance.getMessageTransmitter();
         for(final Player player: allPlayers) {
             if(player.getPlayerUsername().equals(joinedUsername)) {
                 continue;

@@ -194,14 +194,36 @@ abstract class GameEntity implements Updateable {
 
     private updateVelocity(multiplier: number): void {
         if(Math.abs(this.xAcceleration) < 0.1) {
-            this.xVelocity -= multiplier * this.deceleration;
+            if(this.xVelocity > 0.0) {
+                this.xVelocity -= multiplier * this.deceleration;
+                if(this.xVelocity < 0.0) {
+                    this.xVelocity = 0.0;
+                }
+            }
+            else {
+                this.xVelocity += multiplier * this.deceleration;
+                if(this.xVelocity > 0.0) {
+                    this.xVelocity = 0.0;
+                }
+            }
         }
         else {
             this.xVelocity += multiplier * this.xAcceleration;
         }
 
         if(Math.abs(this.yAcceleration) < 0.1) {
-            this.yVelocity -= multiplier * this.deceleration;
+            if(this.yVelocity > 0.0) {
+                this.yVelocity -= multiplier * this.deceleration;
+                if(this.yVelocity < 0.0) {
+                    this.yVelocity = 0.0;
+                }
+            }
+            else {
+                this.yVelocity += multiplier * this.deceleration;
+                if(this.yVelocity > 0.0) {
+                    this.yVelocity = 0.0;
+                }
+            }
         }
         else {
             this.yVelocity += multiplier * this.yAcceleration;
@@ -209,20 +231,14 @@ abstract class GameEntity implements Updateable {
     }
 
     private capVelocity(): void {
-        if(Math.abs(this.xVelocity) < 0.1) {
-            this.xVelocity = 0;
-        }
-        else if(this.xVelocity > this.max_velocity) {
+        if(this.xVelocity > this.max_velocity) {
             this.xVelocity = this.max_velocity;
         }
         else if(this.xVelocity < -this.max_velocity) {
             this.xVelocity = -this.max_velocity;
         }
 
-        if(Math.abs(this.yVelocity) < 0.1) {
-            this.yVelocity = 0;
-        }
-        else if(this.yVelocity > this.max_velocity) {
+        if(this.yVelocity > this.max_velocity) {
             this.yVelocity = this.max_velocity;
         }
         else if(this.yVelocity < -this.max_velocity) {
