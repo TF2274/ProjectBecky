@@ -122,7 +122,7 @@ class GameClient extends GameEntity {
             this.resizeGameArea();
         }
 
-        this.update(elapsedTime);
+        this.updateGame(elapsedTime);
         this.draw();
 
         //Once every 4 frames send the current state of the client input to the server
@@ -146,7 +146,7 @@ class GameClient extends GameEntity {
         setTimeout(this.execGameFrame, waitTime);
     }
 
-    public update(elapsedTime: number): void {
+    public updateGame(elapsedTime: number): void {
         //update current player
         this.player.update(elapsedTime);
 
@@ -320,6 +320,7 @@ class GameClient extends GameEntity {
                     let n: Npc = this.getNpcById(npcInfo.npcId);
                     if(n !== null) {
                         this.lagCompensator.compensateNpc(n, npcInfo);
+                        n.setHealth(npcInfo.health);
                     }
                     else {
                         this.spawnNpc(npcInfo);
@@ -329,6 +330,7 @@ class GameClient extends GameEntity {
                     let npc: Npc = this.getNpcById(npcInfo.npcId);
                     if(npc !== null) {
                         this.lagCompensator.compensateNpc(npc, npcInfo);
+                        npc.setHealth(npcInfo.health);
                     }
                     else {
                         this.spawnNpc(npcInfo);
@@ -371,18 +373,17 @@ class GameClient extends GameEntity {
         else if(message.substring(0, 5) === "PING:") {
             let time: number = parseInt(message.substring(5));
             let latency: number = Math.floor((Date.now() - time) / 2);
-            if(latency < this.lagCompensator.latency) {
-                this.lagCompensator.latency = Math.max(latency, this.lagCompensator.latency - 5);
+            if(latency < this.lagCompensator.getLatency()) {
+                this.lagCompensator.setLatency(latency);
             }
             else {
-                this.lagCompensator.latency = Math.min(latency, this.lagCompensator.latency + 5);
+                this.lagCompensator.setLatency(latency);
             }
         }
         else if((object = PointsUpdate.getValidObjectFromJson(message)) !== null) {
             let points: PointsUpdate = object as PointsUpdate;
             if(this.player.getUsername() === points.username) {
                 this.player.setScore(points.numPoints);
-                console.log(points.numPoints);
             }
         }
         else if((object = PlayerHealthMessage.getValidObjectFromJson(message)) !== null) {
@@ -518,6 +519,7 @@ class GameClient extends GameEntity {
             npc = new InfectedNpc(this, npcInfo.npcId);
         }
 
+        npc.setHealth(npcInfo.health);
         this.lagCompensator.compensateNpc(npc, npcInfo);
         this.renderer.addRenderable(npc);
         this.npcs.add(npc);

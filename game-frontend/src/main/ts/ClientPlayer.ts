@@ -9,6 +9,7 @@
  */
 class ClientPlayer extends Player implements Renderable {
     static acceleration: number = 1800;
+    private static radius: number = 32;
 
     /**
      * Static information. This is the draw information.
@@ -44,6 +45,7 @@ class ClientPlayer extends Player implements Renderable {
     private moveRight: boolean;
     private shooting: boolean;
     private transformedPoints: Point[] = [];
+    private vectorDraw: VectorDrawInstance = new VectorDrawInstance();
 
     constructor(parent: GameEntity, x: number = 0, y: number = 0, angle: number = 0, username: string) {
         super(username);
@@ -101,16 +103,25 @@ class ClientPlayer extends Player implements Renderable {
     }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
+        let screenX: number = this.xPosition - screenOrigin.getX();
+        let screenY: number = this.yPosition - screenOrigin.getY();
+        let canvas: HTMLCanvasElement = context.canvas;
+        if(screenX < -ClientPlayer.radius || screenX - canvas.width > ClientPlayer.radius ||
+            screenY < -ClientPlayer.radius || screenY - canvas.height > ClientPlayer.radius) {
+            return; //off screen, don't draw
+        }
+
         this.preparePoints(); //generate the points themselves
-        this.rotatePoints(); //rotate the generated points around the origin
-        this.transformPoints(context.canvas.width/2, context.canvas.height/2); //shift the points to the center of the screen
+        this.vectorDraw.setLocalSpacePoints(this.transformedPoints);
+        this.vectorDraw.translateToWorldSpace(this.xPosition, this.yPosition, this.angles);
+        this.vectorDraw.translateToScreenSpace(screenOrigin.getX(), screenOrigin.getY());
 
         //draw the main ship body
         context.fillStyle = ClientPlayer.fillColor1;
-        this.fillPolygon(context, ClientPlayer.polyfill1_ind);
+        this.vectorDraw.fill(context, ClientPlayer.polyfill1_ind);
         context.fillStyle = ClientPlayer.fillColor2;
-        this.fillPolygon(context, ClientPlayer.polyfill2_ind);
-        this.fillPolygon(context, ClientPlayer.polyfill3_ind);
+        this.vectorDraw.fill(context, ClientPlayer.polyfill2_ind);
+        this.vectorDraw.fill(context, ClientPlayer.polyfill3_ind);
 
         //prepare to draw the background outline
         context.strokeStyle = ClientPlayer.secondaryLineColor;
@@ -120,8 +131,8 @@ class ClientPlayer extends Player implements Renderable {
         context.lineCap = ClientPlayer.outlineEndcaps;
 
         //draw background lines
-        this.linePolygon(context, ClientPlayer.outline1_ind);
-        this.linePolygon(context, ClientPlayer.outline2_ind);
+        this.vectorDraw.line(context, ClientPlayer.outline1_ind, false);
+        this.vectorDraw.line(context, ClientPlayer.outline2_ind, false);
 
         //prepare to draw the foreground outline
         context.globalAlpha = 1.0;
@@ -129,8 +140,8 @@ class ClientPlayer extends Player implements Renderable {
         context.strokeStyle = ClientPlayer.lineColor;
 
         //draw foreground outline
-        this.linePolygon(context, ClientPlayer.outline1_ind);
-        this.linePolygon(context, ClientPlayer.outline2_ind);
+        this.vectorDraw.line(context, ClientPlayer.outline1_ind, false);
+        this.vectorDraw.line(context, ClientPlayer.outline2_ind, false);
 
         //cleanup settings
         context.lineJoin = "";
@@ -156,51 +167,5 @@ class ClientPlayer extends Player implements Renderable {
         leftLegPoint.addY(legElongateAmount);
         rightLegPoint.addX(-legElongateAmount);
         rightLegPoint.addY(legElongateAmount);
-    }
-
-    private rotatePoints(): void {
-        let sinAngle: number = Math.sin(this.angles + Math.PI/2.0);
-        let cosAngle: number = Math.cos(this.angles + Math.PI/2.0);
-
-        //rotate all of the points around the origin
-        //It is assumed the points have not been transformed
-        for (let i = 0; i < ClientPlayer.points.length; i++) {
-            let p: Point = this.transformedPoints[i];
-            let x: number = p.getX();
-            let y: number = p.getY();
-            p.setX(x*cosAngle - y*sinAngle);
-            p.setY(x*sinAngle + y*cosAngle);
-        }
-    }
-
-    private transformPoints(screenX: number, screenY: number): void {
-        for(let i = 0; i < this.transformedPoints.length; i++) {
-            this.transformedPoints[i].addX(screenX);
-            this.transformedPoints[i].addY(screenY);
-        }
-    }
-
-    private fillPolygon(context: CanvasRenderingContext2D, indices: number[]): void {
-        context.beginPath();
-        let p: Point = this.transformedPoints[indices[0]];
-        context.moveTo(p.getX(), p.getY());
-        for(let i = 1; i < indices.length; i++) {
-            p = this.transformedPoints[indices[i]];
-            context.lineTo(p.getX(), p.getY());
-        }
-        context.closePath();
-        context.fill();
-    }
-
-    private linePolygon(context: CanvasRenderingContext2D, indices: number[]): void {
-        context.beginPath();
-        let p: Point = this.transformedPoints[indices[0]];
-        context.moveTo(p.getX(), p.getY());
-        for(let i = 1; i < indices.length; i++) {
-            p = this.transformedPoints[indices[i]];
-            context.lineTo(p.getX(), p.getY());
-        }
-        context.stroke();
-        context.closePath();
     }
 }

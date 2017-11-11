@@ -22,6 +22,7 @@ class Bullet extends GameEntity implements Renderable {
     constructor(owner: Player, id: number, position: Point, velocity: Point) {
         super(Math.max(velocity.getX(), velocity.getY()));
         this.owner = owner;
+        this.deceleration = 0;
         this.xPosition = position.getX();
         this.yPosition = position.getY();
         this.xVelocity = velocity.getX();
@@ -60,5 +61,17 @@ class Bullet extends GameEntity implements Renderable {
         context.arc(screenX, screenY, Bullet.totalRadius, 0, 2*Math.PI, false);
         context.stroke();
         context.closePath();
+    }
+
+    public update(elapsedTime: number): void {
+        let multiplier: number = elapsedTime / 1000.0;
+        if(this.compensateFrames == 0) {
+            this.xPosition += this.xVelocity * multiplier;
+            this.yPosition += this.yVelocity * multiplier;
+        }
+        else {
+            this.xPosition += (this.xVelocity + this.xCompensateVelocity) * multiplier;
+            this.yPosition += (this.yVelocity + this.yCompensateVelocity) * multiplier;
+        }
     }
 }

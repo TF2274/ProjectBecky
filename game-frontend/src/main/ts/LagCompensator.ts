@@ -7,8 +7,6 @@
 ///<reference path="./GameClient.ts"/>
 
 class LagCompensator {
-    static enabled: boolean = true;
-
     //when a message is received containing the position of an entity,
     //there is likely to be some difference in client position and position
     //from the network. The compensator has three ways to handle things.
@@ -20,7 +18,9 @@ class LagCompensator {
     static THRESHOLD_MAX_ADJUST: number = 200.0;
     //Anything above THRESHOLD_MAX_ADJUST and the object will simply be teleported
 
-    public latency: number = 0;
+    private latency: number = 0;
+    private previousLatencies: number[] = [];
+    private latencySetCount: number = 0;
     private correctionFps: number;
 
     /**
@@ -31,14 +31,27 @@ class LagCompensator {
      */
     constructor(fps: number) {
         this.correctionFps = fps;
+
+        //this will set the average latency to 50 starting off.
+        for(let i = 0; i < 20; i++) {
+            this.previousLatencies[i] = 50;
+        }
+        this.latency = 50;
     }
 
-    public compensateBullet(bullet: Bullet, bulletInfo: BulletInfo): void {
-        if(!LagCompensator.enabled) {
-            bullet.setPosition(bulletInfo.positionX, bulletInfo.positionY);
-            return;
-        }
+    public setLatency(latency: number): void {
+        let oldLatency: number = this.previousLatencies[this.latencySetCount%20];
+        this.previousLatencies[this.latencySetCount%20] = latency;
+        let diff: number = latency - oldLatency;
+        this.latency += diff / 20.0; //much more efficient than recalculating the entire average
+        this.latencySetCount++;
+    }
 
+    public getLatency(): number {
+        return this.latency;
+    }
+
+    public compensateBullet(bullet: GameEntity, bulletInfo: BulletInfo): void {
         //multiplier based on latency
         let multiplier: number = this.latency / 1000.0;
 
@@ -67,13 +80,9 @@ class LagCompensator {
         }
     }
 
-    public compensateClientPlayer(player: Player, playerInfo: ServerPlayerUpdate): void {
+    public compensateClientPlayer(player: GameEntity, playerInfo: ServerPlayerUpdate): void {
         if(player instanceof OpponentPlayer) {
             player.setAngle(playerInfo.angle);
-        }
-        if(!LagCompensator.enabled) {
-            player.setPosition(playerInfo.posX, playerInfo.posY);
-            return;
         }
 
         //multiplier based on latency
@@ -112,13 +121,8 @@ class LagCompensator {
         }
     }
 
-    public compensateNpc(npc: Npc, npcInfo: NpcInfo): void {
-        npc.setHealth(npcInfo.health);
+    public compensateNpc(npc: GameEntity, npcInfo: NpcInfo): void {
         npc.setAngle(npcInfo.angle);
-        if(!LagCompensator.enabled) {
-            npc.setPosition(npcInfo.positionX, npcInfo.positionY);
-            return;
-        }
 
         //multiplier based on latency
         let multiplier: number = this.latency / 1000.0;

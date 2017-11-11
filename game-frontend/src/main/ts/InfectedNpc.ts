@@ -48,15 +48,17 @@ class InfectedNpc extends Npc {
     }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
-        let screenPosition: Point = new Point(this.xPosition - screenOrigin.getX(), this.yPosition - screenOrigin.getY());
-        if(screenPosition.getX() < -InfectedNpc.radius || screenPosition.getY() < -InfectedNpc.radius ||
-           screenPosition.getX() > context.canvas.width + InfectedNpc.radius || screenPosition.getY() > context.canvas.height + InfectedNpc.radius) {
-            return;
+        let screenX: number = this.xPosition - screenOrigin.getX();
+        let screenY: number = this.yPosition - screenOrigin.getY();
+        let canvas: HTMLCanvasElement = context.canvas;
+        if(screenX < -InfectedNpc.radius || screenX - canvas.width > InfectedNpc.radius ||
+            screenY < -InfectedNpc.radius || screenY - canvas.height > InfectedNpc.radius) {
+            return; //off screen, don't draw
         }
 
         //draw the bottom part
         context.beginPath()
-        context.ellipse(screenPosition.getX(), screenPosition.getY(),
+        context.ellipse(screenX, screenY,
                         InfectedNpc.radius + this.extraWidth, InfectedNpc.radius - this.extraWidth,
                         this.angles, 0, 2 * Math.PI);
         //context.arc(screenPosition.getX(), screenPosition.getY(), 32, 0, 2*Math.PI, false);

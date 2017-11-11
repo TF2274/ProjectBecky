@@ -193,14 +193,14 @@ abstract class GameEntity implements Updateable {
     }
 
     private updateVelocity(multiplier: number): void {
-        if(this.xAcceleration < 0.1) {
+        if(Math.abs(this.xAcceleration) < 0.1) {
             this.xVelocity -= multiplier * this.deceleration;
         }
         else {
             this.xVelocity += multiplier * this.xAcceleration;
         }
 
-        if(this.yAcceleration < 0.1) {
+        if(Math.abs(this.yAcceleration) < 0.1) {
             this.yVelocity -= multiplier * this.deceleration;
         }
         else {

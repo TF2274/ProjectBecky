@@ -6,6 +6,7 @@
 class VirusNpc extends Npc {
     private static max_velocity: number = 200;
     private static firstLegIndex: number = 11;
+    private static radius: number = 32;
     private static drawPoints: Point[] = [
         new Point(-12, -20),
         new Point(0, -6),
@@ -21,8 +22,12 @@ class VirusNpc extends Npc {
         new Point(), //set on each frame. Left leg
         new Point()  //set on each frame. Right leg
     ];
+    private static draw_ind1: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    private static draw_ind2: number[] = [9, 10];
+    private static draw_ind3: number[] = [11, 10, 12];
 
     private transformedPoints: Point[] = [];
+    private vectorDraw: VectorDrawInstance = new VectorDrawInstance();
 
     constructor(parent: GameEntity, npcId: number) {
         super(parent, npcId, VirusNpc.max_velocity);
@@ -34,41 +39,33 @@ class VirusNpc extends Npc {
     }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
+        let screenX: number = this.xPosition - screenOrigin.getX();
+        let screenY: number = this.yPosition - screenOrigin.getY();
+        let canvas: HTMLCanvasElement = context.canvas;
+        if(screenX < -VirusNpc.radius || screenX - canvas.width > VirusNpc.radius ||
+            screenY < -VirusNpc.radius || screenY - canvas.height > VirusNpc.radius) {
+            return; //off screen, don't draw
+        }
+
         //translate the points to screen space
         this.setLegEndpoints();
-        this.rotatePoints();
-        this.translatePoints(screenOrigin);
+        this.vectorDraw.setLocalSpacePoints(this.transformedPoints);
+        this.vectorDraw.translateToWorldSpace(this.xPosition, this.yPosition, this.angles);
+        this.vectorDraw.translateToScreenSpace(screenOrigin.getX(), screenOrigin.getY());
 
         //prepare background draw colors and style
         context.strokeStyle = "#007875";
         context.lineWidth = 3;
-        this.drawLines(context);
+        this.vectorDraw.line(context, VirusNpc.draw_ind1, false);
+        this.vectorDraw.line(context, VirusNpc.draw_ind2, false);
+        this.vectorDraw.line(context, VirusNpc.draw_ind3, false);
 
         //now prepare to draw the points
         context.strokeStyle = "#00fffc";
         context.lineWidth = 1;
-        this.drawLines(context);
-    }
-
-    private drawLines(context: CanvasRenderingContext2D): void {
-        context.beginPath();
-        context.moveTo(this.transformedPoints[0].getX(), this.transformedPoints[0].getY());
-        for(let i = 1; i < 9; i++) {
-            context.lineTo(this.transformedPoints[i].getX(),
-                this.transformedPoints[i].getY());
-        }
-        context.stroke();
-        context.moveTo(this.transformedPoints[9].getX(), this.transformedPoints[9].getY());
-        context.lineTo(this.transformedPoints[10].getX(), this.transformedPoints[10].getY());
-        context.stroke();
-
-        //draw the legs
-        context.lineTo(this.transformedPoints[11].getX(), this.transformedPoints[11].getY());
-        context.stroke();
-        context.moveTo(this.transformedPoints[10].getX(), this.transformedPoints[10].getY());
-        context.lineTo(this.transformedPoints[12].getX(), this.transformedPoints[12].getY());
-        context.stroke();
-        context.closePath();
+        this.vectorDraw.line(context, VirusNpc.draw_ind1, false);
+        this.vectorDraw.line(context, VirusNpc.draw_ind2, false);
+        this.vectorDraw.line(context, VirusNpc.draw_ind3, false);
     }
 
     private setLegEndpoints(): void {
@@ -82,36 +79,5 @@ class VirusNpc extends Npc {
         this.transformedPoints[11].setY(15 + changeY);
         this.transformedPoints[12].setX(8 - changeX);
         this.transformedPoints[12].setY(15 + changeY);
-    }
-
-    private rotatePoints(): void {
-        let sinAngle: number = Math.sin(this.angles);
-        let cosAngle: number = Math.cos(this.angles);
-
-        //this is the first points, which excludes the leg endpoints
-        for(let i = 0; i < VirusNpc.firstLegIndex; i++) {
-            let x: number = VirusNpc.drawPoints[i].getX();
-            let y: number = VirusNpc.drawPoints[i].getY();
-            this.transformedPoints[i].setX(x*cosAngle - y*sinAngle);
-            this.transformedPoints[i].setY(x*sinAngle + y*cosAngle);
-        }
-
-        //leg endpoints aka the last two points in the array
-        for(let i = VirusNpc.firstLegIndex; i < this.transformedPoints.length; i++) {
-            let x: number = this.transformedPoints[i].getX();
-            let y: number = this.transformedPoints[i].getY();
-            this.transformedPoints[i].setX(x*cosAngle - y*sinAngle);
-            this.transformedPoints[i].setY(x*sinAngle + y*cosAngle);
-        }
-    }
-
-    private translatePoints(screenOrigin: Point): void {
-        let tX: number = screenOrigin.getX();
-        let tY: number = screenOrigin.getY();
-
-        for(let i = 0; i < this.transformedPoints.length; i++) {
-            this.transformedPoints[i].addX(this.xPosition - tX);
-            this.transformedPoints[i].addY(this.yPosition - tY);
-        }
     }
 }
