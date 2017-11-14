@@ -1,18 +1,14 @@
 package com.becky.world.entity;
 
+import com.becky.networking.message.EntityMessage;
 import com.becky.world.physics.WorldBorderCollisionDetector;
 
 /**
  * Defines a type of bullet shot by a player
  */
 public abstract class Bullet extends GameEntity {
-    public static final int STATE_NEW_BULLET = 0;
-    public static final int STATE_UPDATED_BULLET = 1;
-    public static final int STATE_DEAD_BULLET = 2;
-
     protected final Player owner;
     protected final int damageAmount;
-    protected int state = Bullet.STATE_NEW_BULLET;
 
     protected Bullet(final Player owner,
                      final float xPosition,
@@ -48,22 +44,6 @@ public abstract class Bullet extends GameEntity {
     }
 
     /**
-     * Gets whether or not this bullet is newly spawned
-     * @return
-     */
-    public int getState() {
-        if(this.state == Bullet.STATE_NEW_BULLET) {
-            this.state = Bullet.STATE_UPDATED_BULLET;
-            return Bullet.STATE_NEW_BULLET;
-        }
-        return this.state;
-    }
-
-    public void setState(final int state) {
-        this.state = state;
-    }
-
-    /**
      * Gets the remaining health of this bullet.
      * @return
      */
@@ -72,7 +52,7 @@ public abstract class Bullet extends GameEntity {
     @Override
     public void setXVelocity(final float xVelocity) {
         if(Math.abs(xVelocity) < 0.1f) {
-            this.state = STATE_DEAD_BULLET;
+            super.setState(STATE_DEAD);
         }
         super.setXVelocity(xVelocity);
     }
@@ -80,7 +60,7 @@ public abstract class Bullet extends GameEntity {
     @Override
     public void setYVelocity(final float yVelocity) {
         if(Math.abs(yVelocity) < 0.1f) {
-            this.state = STATE_DEAD_BULLET;
+            super.setState(STATE_DEAD);
         }
         super.setYVelocity(yVelocity);
     }
@@ -104,7 +84,14 @@ public abstract class Bullet extends GameEntity {
     @Override
     public void tick(final long elapsedTime) {
         if(Math.abs(this.velocity.x) < 0.1f && Math.abs(this.velocity.y) < 0.1f) {
-            this.state = STATE_DEAD_BULLET;
+            super.setState(STATE_DEAD);
         }
+    }
+
+    @Override
+    public EntityMessage getUpdateMessage() {
+        final EntityMessage message = super.getUpdateMessage();
+        message.setOwner(owner.getPlayerUsername());
+        return message;
     }
 }

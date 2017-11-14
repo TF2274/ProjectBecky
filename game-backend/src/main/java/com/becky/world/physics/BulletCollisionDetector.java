@@ -1,6 +1,5 @@
 package com.becky.world.physics;
 
-import com.becky.networking.message.PointsUpdate;
 import com.becky.world.NewGameWorld;
 import com.becky.world.entity.Bullet;
 import com.becky.world.entity.GameEntity;
@@ -35,7 +34,7 @@ public class BulletCollisionDetector implements PhysicsFilter {
                 final Bullet bullet = worldBullets.get(i);
                 if(!player.equals(bullet.getOwner()) && isBulletColliding(player, bullet)) {
                     player.setHealth(player.getHealth() - bullet.getDamage(), bullet.getOwner().getPlayerUsername());
-                    bullet.setState(Bullet.STATE_DEAD_BULLET);
+                    bullet.setState(GameEntity.STATE_DEAD);
                     worldBullets.remove(bullet);
                     i--;
                 }
@@ -48,16 +47,12 @@ public class BulletCollisionDetector implements PhysicsFilter {
                 final Bullet bullet = worldBullets.get(i);
                 if(isBulletColliding(npc, bullet)) {
                     npc.setNpcHealth(npc.getNpcHealth() - bullet.getDamage());
-                    bullet.setState(Bullet.STATE_DEAD_BULLET);
+                    bullet.setState(GameEntity.STATE_DEAD);
                     worldBullets.remove(bullet);
                     i--;
                     if(npc.getNpcHealth() == 0) {
                         final Player attacker = bullet.getOwner();
                         attacker.addScore(npc.getNpcPointsValue());
-                        final PointsUpdate pointsUpdate = new PointsUpdate();
-                        pointsUpdate.setUsername(attacker.getPlayerUsername());
-                        pointsUpdate.setNumPoints(attacker.getScore());
-                        gameWorld.getMessageTransmitter().transmitMessage(attacker, pointsUpdate.jsonSerialize());
                     }
                 }
             }

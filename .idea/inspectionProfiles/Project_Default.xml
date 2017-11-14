@@ -248,6 +248,7 @@
       </option>
       <option name="ignoreClassWithParameterization" value="true" />
       <option name="ignoreThrowables" value="true" />
+      <option name="commentsAreContent" value="true" />
     </inspection_tool>
     <inspection_tool class="EmptyInitializer" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="EmptyParenMethodAccessedAsParameterless" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -827,7 +828,7 @@
     </inspection_tool>
     <inspection_tool class="NonSynchronizedMethodOverridesSynchronizedMethod" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="NonThreadSafeLazyInitialization" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="NoopMethodInAbstractClass" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="NoopMethodInAbstractClass" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NotImplementedCode" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="NotifyCalledOnCondition" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="NotifyNotInSynchronizedContext" enabled="true" level="ERROR" enabled_by_default="true" />
@@ -1058,6 +1059,9 @@
     <inspection_tool class="SuspiciousNameCombination" enabled="true" level="ERROR" enabled_by_default="true">
       <group names="x,width,left,right" />
       <group names="y,height,top,bottom" />
+      <ignored>
+        <option name="METHOD_MATCHER_CONFIG" value="java.io.PrintStream,println,java.io.PrintWriter,println,java.lang.System,identityHashCode,java.sql.PreparedStatement,set.*,java.sql.ResultSet,update.*,java.sql.SQLOutput,write.*,java.lang.Integer,compare.*,java.lang.Long,compare.*,java.lang.Short,compare,java.lang.Byte,compare,java.lang.Character,compare,java.lang.Boolean,compare,java.lang.Math,.*,java.lang.StrictMath,.*" />
+      </ignored>
     </inspection_tool>
     <inspection_tool class="SwitchStatementWithConfusingDeclaration" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="SwitchStatementsWithoutDefault" enabled="false" level="ERROR" enabled_by_default="false">
@@ -1106,11 +1110,11 @@
     <inspection_tool class="ThrowablePrintedToSystemOut" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="ThrowsRuntimeException" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="TimeToString" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="TooBroadCatch" enabled="true" level="ERROR" enabled_by_default="true">
+    <inspection_tool class="TooBroadCatch" enabled="false" level="ERROR" enabled_by_default="false">
       <option name="onlyWarnOnRootExceptions" value="true" />
       <option name="ignoreInTestCode" value="true" />
     </inspection_tool>
-    <inspection_tool class="TooBroadThrows" enabled="true" level="ERROR" enabled_by_default="true">
+    <inspection_tool class="TooBroadThrows" enabled="false" level="ERROR" enabled_by_default="false">
       <option name="onlyWarnOnRootExceptions" value="true" />
       <option name="ignoreInTestCode" value="true" />
       <option name="ignoreLibraryOverrides" value="true" />
@@ -1146,6 +1150,7 @@
     <inspection_tool class="UnnecessaryDefault" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="UnnecessaryFullyQualifiedName" enabled="true" level="ERROR" enabled_by_default="true">
       <option name="m_ignoreJavadoc" value="true" />
+      <option name="ignoreInModuleStatements" value="true" />
     </inspection_tool>
     <inspection_tool class="UnnecessaryInterfaceModifier" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="UnnecessaryLabelJS" enabled="false" level="ERROR" enabled_by_default="false" />

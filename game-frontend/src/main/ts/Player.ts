@@ -8,9 +8,16 @@ abstract class Player extends GameEntity {
     protected score: number = 0;
     protected health: number = 10;
 
-    protected constructor(username: string) {
-        super(Player.max_velocity);
-        this.username = username;
+    constructor() {
+        super();
+        this.max_velocity = Player.max_velocity;
+    }
+
+    public receiveMessage(message: EntityMessage): void {
+        super.receiveMessage(message);
+        this.score = message.score;
+        this.health = message.health;
+        this.username = message.username;
     }
 
     /**

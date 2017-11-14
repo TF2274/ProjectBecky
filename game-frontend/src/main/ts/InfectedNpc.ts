@@ -14,9 +14,10 @@ class InfectedNpc extends Npc {
     private totalTime: number = Date.now();
     private widthExpand: boolean = true;
 
-    constructor(parent: GameEntity, npcId: number) {
-        super(parent, npcId, InfectedNpc.max_velocity);
+    constructor() {
+        super();
         this.angles = 0;
+        this.max_velocity = InfectedNpc.max_velocity;
     }
 
     public setAngle(angle: number): void {/* Do nothing */}

@@ -36,9 +36,8 @@ class OpponentPlayer extends Player {
     private usernameDrawXOffset: number = -1;
     private vectorDraw: VectorDrawInstance = new VectorDrawInstance();
 
-    constructor(parent: GameEntity, username: string) {
-        super(username);
-        this.parent = parent;
+    constructor() {
+        super();
 
         for(let i = 0; i < OpponentPlayer.points.length; i++) {
             this.transformedPoints[i] = new Point();

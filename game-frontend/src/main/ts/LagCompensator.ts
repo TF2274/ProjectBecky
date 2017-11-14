@@ -22,6 +22,7 @@ class LagCompensator {
     private previousLatencies: number[] = [];
     private latencySetCount: number = 0;
     private correctionFps: number;
+    private correctionTime: number;
 
     /**
      * Creates a new lag compensator object which can be used to attempt to correct positioning based on the known
@@ -31,6 +32,7 @@ class LagCompensator {
      */
     constructor(fps: number) {
         this.correctionFps = fps;
+        this.correctionTime = fps * GameClient.TIME_PER_FRAME;
 
         //this will set the average latency to 50 starting off.
         for(let i = 0; i < 20; i++) {
@@ -40,124 +42,44 @@ class LagCompensator {
     }
 
     public setLatency(latency: number): void {
-        let oldLatency: number = this.previousLatencies[this.latencySetCount%20];
-        this.previousLatencies[this.latencySetCount%20] = latency;
-        let diff: number = latency - oldLatency;
-        this.latency += diff / 20.0; //much more efficient than recalculating the entire average
-        this.latencySetCount++;
+        // let oldLatency: number = this.previousLatencies[this.latencySetCount%20];
+        // this.previousLatencies[this.latencySetCount%20] = latency;
+        // let diff: number = latency - oldLatency;
+        // this.latency += diff / 20.0; //much more efficient than recalculating the entire average
+        // this.latencySetCount++;
+        if(latency < this.latency) {
+            this.latency = Math.max(this.latency - 5, latency);
+        }
+        else {
+            this.latency = Math.min(this.latency + 5, latency);
+        }
     }
 
     public getLatency(): number {
         return this.latency;
     }
 
-    public compensateBullet(bullet: GameEntity, bulletInfo: BulletInfo): void {
-        //multiplier based on latency
+    public compensateEntityMessage(entity: GameEntity, message: EntityMessage): void {
         let multiplier: number = this.latency / 1000.0;
+        message.XVelocity += multiplier * message.XAcceleration;
+        message.YVelocity += multiplier * message.YAcceleration;
+        message.XPosition += multiplier * message.XVelocity;
+        message.YPosition += multiplier * message.YVelocity;
 
-        //based on latency determine the correct X/Y position
-        bulletInfo.positionX += bullet.getXVelocity() * multiplier;
-        bulletInfo.positionY += bullet.getYVelocity() * multiplier;
-
-        //how "off" is the game client
-        let delta: number = this.distance(bullet.getXPosition(), bullet.getYPosition(), bulletInfo.positionX, bulletInfo.positionY);
-        if(delta > LagCompensator.THRESHOLD_MAX_ADJUST) {
-            bullet.setPosition(bulletInfo.positionX, bulletInfo.positionY);
-        }
-        else {
-            //how much time available to correct?
-            let millis: number = GameClient.TIME_PER_FRAME * this.correctionFps;
-
-            //determine how much EXTRA distance per millisecond must be covered by the bullet
-            //to be in the correct position within 8 game frames
-            let deltaX: number = bulletInfo.positionX - bullet.getXPosition();
-            let deltaY: number = bulletInfo.positionY - bullet.getYPosition();
-
-            //delta/millis = delta per millisecond
-            //delta per millisecond * 1000 = distance per second to add to velocity
-            let velocity: Point = new Point(deltaX/millis * 1000, deltaY/millis * 1000);
-            bullet.setLagCompensateVelocity(velocity, this.correctionFps);
-        }
-    }
-
-    public compensateClientPlayer(player: GameEntity, playerInfo: ServerPlayerUpdate): void {
-        if(player instanceof OpponentPlayer) {
-            player.setAngle(playerInfo.angle);
-        }
-
-        //multiplier based on latency
-        let multiplier: number = this.latency / 1000.0;
-
-        //based on latency, adjust the velocity and position vectors
-        let velocity: Point = new Point(playerInfo.velX, playerInfo.velY);
-        velocity.addX(multiplier * playerInfo.accelX);
-        velocity.addY(multiplier * playerInfo.accelY);
-        let position: Point = new Point(playerInfo.posX, playerInfo.posY);
-        position.addX(velocity.getX() * multiplier);
-        position.addY(velocity.getY() * multiplier);
-
-        //set velocity and acceleration to the player
-        player.setAcceleration(playerInfo.accelX, playerInfo.accelY);
-        player.setVelocity(velocity.getX(), velocity.getY());
-
-        //how "off" is the client on player position?
-        let delta: number = this.distance(player.getXPosition(), player.getYPosition(), position.getX(), position.getY());
+        let deltaX: number = message.XPosition - entity.getXPosition();
+        let deltaY: number = message.YPosition - entity.getYPosition();
+        let delta: number = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
         if(delta > LagCompensator.THRESHOLD_MAX_ADJUST) {
-            player.setPosition(position.getX(), position.getY());
+             entity.setPosition(message.XPosition, message.YPosition);
+             entity.receiveMessage(message);
+            return;
         }
-        else {
-            //how much time available to correct
-            let millis: number = GameClient.TIME_PER_FRAME * this.correctionFps;
 
-            //how much EXTRA distance must be covered per millisecond to be corrected in time
-            let deltaX: number = position.getX() - player.getXPosition();
-            let deltaY: number = position.getY() - player.getYPosition();
-
-            //delta/millis = delta per millisecond
-            //delta per millisecond * 1000 = distance per second to add to velocity
-            let adjustVelocity: Point = new Point(deltaX/millis * 1000, deltaY/millis * 1000);
-            player.setLagCompensateVelocity(adjustVelocity, this.correctionFps);
-        }
-    }
-
-    public compensateNpc(npc: GameEntity, npcInfo: NpcInfo): void {
-        npc.setAngle(npcInfo.angle);
-
-        //multiplier based on latency
-        let multiplier: number = this.latency / 1000.0;
-
-        //adjust the velocity and position to account for latency
-        let velocity: Point = new Point(npcInfo.velocityX, npcInfo.velocityY);
-        velocity.addX(multiplier * npcInfo.accelerationX);
-        velocity.addY(multiplier * npcInfo.accelerationY);
-        let position: Point = new Point(npcInfo.positionX, npcInfo.positionY);
-        position.addX(multiplier * velocity.getX());
-        position.addY(multiplier * velocity.getY());
-
-        //how "off" is the client
-        let delta: number = this.distance(npc.getXPosition(), npc.getYPosition(), position.getX(), position.getY());
-
-        //no matter what, we always set acceleration and velocity
-        npc.setAcceleration(npcInfo.accelerationX, npcInfo.accelerationY);
-        npc.setVelocity(velocity.getX(), velocity.getY());
-
-        //figure out how to handle a difference in values
-        if(delta > LagCompensator.THRESHOLD_MAX_ADJUST) {
-            npc.setPosition(position.getX(), position.getY());
-        }
-        else {
-            let millis: number = GameClient.TIME_PER_FRAME * this.correctionFps;
-
-            let deltaX: number = position.getX() - npc.getXPosition();
-            let deltaY: number = position.getY() - npc.getYPosition();
-
-            let adjustVelocity: Point = new Point((deltaX/millis) * 1000, (deltaY/millis) * 1000);
-            npc.setLagCompensateVelocity(adjustVelocity, this.correctionFps);
-        }
-    }
-
-    private distance(x1: number, y1: number, x2: number, y2: number): number {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        let compensateVelocity = new Point();
+        compensateVelocity.setX((deltaX/this.correctionTime) * 1000.0);
+        compensateVelocity.setY((deltaY/this.correctionTime) * 1000.0);
+        entity.receiveMessage(message);
+        entity.setLagCompensateVelocity(compensateVelocity, this.correctionFps);
     }
 }

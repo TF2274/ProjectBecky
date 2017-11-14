@@ -29,7 +29,7 @@ public class DefaultBullet extends Bullet {
         this.remainingHealth -= (deltaX + deltaY);
 
         if(this.remainingHealth <= 0.0f) {
-            this.state = Bullet.STATE_DEAD_BULLET;
+            super.setState(STATE_DEAD);
         }
 
         super.tick(elapsedTime);

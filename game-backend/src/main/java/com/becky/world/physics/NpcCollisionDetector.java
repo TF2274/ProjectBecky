@@ -65,7 +65,6 @@ public class NpcCollisionDetector implements PhysicsFilter, WorldEventListener {
             player.setYVelocity(player.getYVelocity() + 300.0f * (float)StrictMath.sin(collisionAngle));
             player.setHealth(player.getHealth() - npc.getNpcHealth(), npc.getClass().getSimpleName());
             npc.setNpcHealth(0);
-            npc.setNpcState(Npc.NPC_STATE_DEAD);
         }
     }
 

@@ -39,23 +39,32 @@ class ClientPlayer extends Player implements Renderable {
     private static rightLegTip: number = 2;
     private static legElongateRatio: number = 5.0 / Player.max_velocity;
 
-    private moveUp: boolean;
-    private moveDown: boolean;
-    private moveLeft: boolean;
-    private moveRight: boolean;
-    private shooting: boolean;
+    private moveUp: boolean = false;
+    private moveDown: boolean = false;
+    private moveLeft: boolean = false;
+    private moveRight: boolean = false;
+    private shooting: boolean = false;
     private transformedPoints: Point[] = [];
     private vectorDraw: VectorDrawInstance = new VectorDrawInstance();
 
-    constructor(parent: GameEntity, x: number = 0, y: number = 0, angle: number = 0, username: string) {
-        super(username);
-        this.setAngle(angle);
-        this.setPosition(x, y);
-        this.setParentEntity(parent);
+    constructor() {
+        super();
 
         for(let i = 0; i < ClientPlayer.points.length; i++) {
             this.transformedPoints[i] = new Point();
         }
+    }
+
+    public receiveMessage(message: EntityMessage): void {
+        //can't just call super.receiveMessage because of angles being set in the GameEntity class.
+        //Consequently I have no choice but to do all of it here
+        this.score = message.score;
+        this.health = message.health;
+        this.username = message.username;
+        this.xVelocity = message.XVelocity;
+        this.yVelocity = message.YVelocity;
+        this.xAcceleration = message.XAcceleration;
+        this.yAcceleration = message.YAcceleration;
     }
 
     public getMovingUp = (): boolean => {

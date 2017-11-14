@@ -1,5 +1,6 @@
 package com.becky.world.entity;
 
+import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
 import com.becky.world.physics.BulletCollisionDetector;
 import com.becky.world.physics.PhysicsFilter;
@@ -118,6 +119,15 @@ public class Player extends GameEntity {
 
     public boolean isPlayerScoreUpdated() {
         return this.playerScoreUpdated;
+    }
+
+    @Override
+    public EntityMessage getUpdateMessage() {
+        final EntityMessage message = super.getUpdateMessage();
+        message.setUsername(playerUsername);
+        message.setHealth(health);
+        message.setScore(score);
+        return message;
     }
 
     @Override

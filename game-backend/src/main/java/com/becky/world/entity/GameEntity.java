@@ -1,5 +1,6 @@
 package com.becky.world.entity;
 
+import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
 import com.becky.world.entity.npc.VirusNpc;
 import com.becky.world.physics.PhysicsFilter;
@@ -8,6 +9,10 @@ import java.awt.geom.Point2D;
 import java.util.*;
 
 public abstract class GameEntity {
+    public static final int STATE_NEW = 1;
+    public static final int STATE_UPDATE = 2;
+    public static final int STATE_DEAD = 3;
+
     private static long entityCount = 1;
     private final long entityId;
 
@@ -24,6 +29,10 @@ public abstract class GameEntity {
     protected float maxVelocity = Float.POSITIVE_INFINITY;
     protected float deceleration = 0.0f;
 
+    //state
+    private int state = STATE_NEW;
+    private final String typeName;
+
     //collisions
     protected int collisionRadius;
 
@@ -34,6 +43,21 @@ public abstract class GameEntity {
         entityId = entityCount;
         entityCount++;
         this.container = container;
+        this.typeName = this.getClass().getSimpleName();
+    }
+
+    public int getState() {
+        if(state == STATE_NEW) {
+            state = STATE_UPDATE;
+            return STATE_NEW;
+        }
+        else {
+            return state;
+        }
+    }
+
+    public void setState(final int state) {
+        this.state = state;
     }
 
     public void setCollisionRadius(final int radius) {
@@ -166,6 +190,21 @@ public abstract class GameEntity {
 
     public boolean doesPhysicsApply(final Class<? extends PhysicsFilter> physics) {
         return this.filterApplies.contains(physics);
+    }
+
+    public EntityMessage getUpdateMessage() {
+        final EntityMessage message = new EntityMessage();
+        message.setXPosition(getXPosition());
+        message.setYPosition(getYPosition());
+        message.setXVelocity(getXVelocity());
+        message.setYVelocity(getYVelocity());
+        message.setXAcceleration(getXAcceleration());
+        message.setYAcceleration(getYAcceleration());
+        message.setState(getState());
+        message.setAngle(getAngles());
+        message.setType(this.typeName);
+        message.setEntityId(this.entityId);
+        return message;
     }
 
     protected void addPhysicsFilter(final Class<? extends PhysicsFilter> filter) {

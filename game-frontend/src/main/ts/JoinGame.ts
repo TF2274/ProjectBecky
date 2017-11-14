@@ -17,8 +17,6 @@ class JoinGame {
     private initialBullets: BulletInfo[] = null;
     private usernameStatus: ServerUsernameRequestStatus = null;
     private usernameStatusReceived: boolean = false;
-    private initialListReceived: boolean = false;
-    private initialBulletsReceived: boolean = false;
 
     constructor(username: string, canvas: HTMLCanvasElement) {
         this.username = username;
@@ -92,30 +90,17 @@ class JoinGame {
                 this.usernameStatusReceived = true;
             }
         }
-        else if((object = InitialPlayerList.getValidObjectFromJson(message)) !== null) {
-            let initialPlayers: InitialPlayerList = object as InitialPlayerList;
-            this.initialList = initialPlayers;
-            this.initialListReceived = true;
-        }
-        else if((object = BulletInfo.getValidArrayFromJson(message)) !== null) {
-            let bulletInfos: BulletInfo[] = object as BulletInfo[];
-            for(let i = 0; i < bulletInfos.length; i++) {
-                if(bulletInfos[i].state != 0) {
-                    //this message isn't a proper initial bullet info state message
-                    return;
-                }
-            }
-            this.initialBullets = bulletInfos;
-            this.initialBulletsReceived = true;
-        }
 
         //create the client and kill the current listener
         //this empty listener is so we don't receive more events
-        if(this.usernameStatusReceived && this.initialListReceived && this.initialBulletsReceived) {
+        if(this.usernameStatusReceived) {
             this.connection.onmessage = (event: MessageEvent) => {};
-            let gameClient: GameClient = new GameClient(this.canvas, this.connection, this.usernameStatus.message, this.initialJoinState.authenticationString);
-            gameClient.setInitialPlayers(this.initialList);
-            gameClient.setInitialBullets(this.initialBullets);
+            let gameClient: GameClient = new GameClient(
+                this.canvas,
+                this.connection,
+                this.usernameStatus.message,
+                this.initialJoinState.playerId,
+                this.initialJoinState.authenticationString);
             gameClient.run();
         }
     }
@@ -124,9 +109,7 @@ class JoinGame {
         this.initialList = null;
         this.usernameStatus = null;
         this.initialBullets = null;
-        this.initialBulletsReceived = false;
         this.usernameStatusReceived = false;
-        this.initialListReceived = false;
         if(this.connection.readyState == WebSocket.OPEN || this.connection.readyState == WebSocket.CONNECTING) {
             this.connection.close(1000, reason);
         }

@@ -7,6 +7,7 @@ class InitialServerJoinState {
     public authenticationString: string;
     public initialLocationX: number;
     public initialLocationY: number;
+    public playerId: number;
 
     /**
      * Converts a json string into a valid InitialServerJoinState IF the provided json string

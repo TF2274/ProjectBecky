@@ -1,16 +1,10 @@
 package com.becky.world;
 
 import com.becky.networking.MessageTransmitter;
-import com.becky.networking.message.BulletInfo;
+import com.becky.networking.PlayerMessagingUtility;
 import com.becky.networking.message.HighscoreInfo;
-import com.becky.networking.message.NpcInfo;
-import com.becky.networking.message.PlayerHealthMessage;
-import com.becky.networking.message.PointsUpdate;
-import com.becky.networking.message.ServerPlayerUpdate;
-import com.becky.world.entity.Bullet;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
-import com.becky.world.entity.npc.Npc;
 import com.becky.world.entity.npc.NpcSpawner;
 import com.becky.world.entity.npc.SpawnRules;
 import com.becky.world.physics.BulletCollisionDetector;
@@ -37,6 +31,7 @@ public class NewGameWorld implements Runnable {
     private final List<WorldEventListener> worldEventListeners = new ArrayList<>();
     private final NpcSpawner spawner = new NpcSpawner(this);
     private final Point2D.Float worldDimension = new Point2D.Float(8000.0f, 8000.0f);
+    private final PlayerMessagingUtility playerMessagingUtility = new PlayerMessagingUtility(messageTransmitter);
 
     public NewGameWorld() {
         physicsFilters.add(new BulletCollisionDetector(this));
@@ -70,10 +65,12 @@ public class NewGameWorld implements Runnable {
             tick(entities, elapsedTime);
             //apply relevant physics to entities
             applyPhysics(entities);
-            //transmit entity details
+            //transmit entity details every other frame (saves bandwidth and client cpu cycles)
             transmit(entities);
             //spawn npcs as necessary
             spawner.executeSpawnRules();
+            //remove dead entities
+            removeDeadEntities();
 
             if(frameNumber % 300 == 0) {//every 300 frames (15 seconds)
                 this.transmitHighscores();
@@ -109,101 +106,17 @@ public class NewGameWorld implements Runnable {
     }
 
     private void transmit(final List<GameEntity> entities) {
-        final List<Player> allPlayers = this.getAllPlayers();
-        final List<ServerPlayerUpdate> playerUpdates = new ArrayList<>();
-        final List<BulletInfo> bulletUpdates = new ArrayList<>();
-        final List<NpcInfo> npcInfos = new ArrayList<>();
+        playerMessagingUtility.prepareMessages(entities);
+        final List<Player> allPlayers = getAllPlayers();
+        playerMessagingUtility.transmitMessages(allPlayers);
+    }
 
-        for(final GameEntity entity: entities) {
-            if(entity instanceof Player) {
-                final Player player = (Player)entity;
-                final ServerPlayerUpdate update = new ServerPlayerUpdate();
-                update.setPlayerName(player.getPlayerUsername());
-                update.setPosX(player.getXPosition());
-                update.setPosY(player.getYPosition());
-                update.setVelX(player.getXVelocity());
-                update.setVelY(player.getYVelocity());
-                update.setAccelX(player.getXAcceleration());
-                update.setAccelY(player.getYAcceleration());
-                update.setAngle(player.getAngles());
-                update.setHealth(player.getHealth());
-                playerUpdates.add(update);
-
-                if(player.isPlayerHealthUpdated()) {
-                    if(player.getHealth() <= 0) {
-                        removePlayerByUsername(player.getPlayerUsername());
-                        synchronized (this.deadPlayers) {
-                            deadPlayers.put(player.getPlayerUsername(), player);
-                        }
-                    }
-                    final PlayerHealthMessage healthUpdate = new PlayerHealthMessage();
-                    healthUpdate.setAffectedBy(player.getHealthAffectedBy());
-                    healthUpdate.setHealth(player.getHealth());
-                    healthUpdate.setUsername(player.getPlayerUsername());
-                    messageTransmitter.transmitMessage(player, healthUpdate.jsonSerialize());
-                }
-                if(player.isPlayerScoreUpdated()) {
-                    final PointsUpdate pointsUpdate = new PointsUpdate();
-                    pointsUpdate.setNumPoints(player.getScore());
-                    pointsUpdate.setUsername(player.getPlayerUsername());
-                    messageTransmitter.transmitMessage(player, pointsUpdate.jsonSerialize());
-                }
-                player.resetStatusUpdateFlags();
+    private void removeDeadEntities() {
+        final List<GameEntity> allEntities = getAllGameEntities();
+        for(final GameEntity entity: allEntities) {
+            if(entity.getState() == GameEntity.STATE_DEAD) {
+                removeGameEntity(entity);
             }
-            else if(entity instanceof Bullet) {
-                final Bullet bullet = (Bullet)entity;
-                final int bulletState = bullet.getState();
-
-                if(bulletState == Bullet.STATE_DEAD_BULLET) {
-                    final BulletInfo info = new BulletInfo(
-                        null, Bullet.STATE_DEAD_BULLET, bullet.getEntityId(), null, null, null, null);
-                    bulletUpdates.add(info);
-                    this.removeGameEntity(entity);
-                }
-                else if(bulletState == Bullet.STATE_NEW_BULLET) {
-                    final BulletInfo info = new BulletInfo(
-                        bullet.getOwner().getPlayerUsername(),
-                        Bullet.STATE_NEW_BULLET,
-                        bullet.getEntityId(),
-                        bullet.getXVelocity(), bullet.getYVelocity(),
-                        bullet.getXPosition(), bullet.getYPosition());
-                    bulletUpdates.add(info);
-                }
-                else if(bulletState == Bullet.STATE_UPDATED_BULLET) {
-                    final BulletInfo info = new BulletInfo(null, Bullet.STATE_UPDATED_BULLET, bullet.getEntityId(),
-                        null, null, bullet.getXPosition(), bullet.getYPosition());
-                    bulletUpdates.add(info);
-                }
-            }
-            else if(entity instanceof Npc) {
-                final Npc npc = (Npc)entity;
-                final NpcInfo npcInfo = new NpcInfo();
-                npcInfo.setState(npc.getNpcState());
-                npcInfo.setHealth(npc.getNpcHealth());
-                npcInfo.setNpcId(npc.getEntityId());
-                npcInfo.setAngle(npc.getAngles());
-                npcInfo.setPositionX(npc.getXPosition());
-                npcInfo.setPositionY(npc.getYPosition());
-                npcInfo.setVelocityX(npc.getXVelocity());
-                npcInfo.setVelocityY(npc.getYVelocity());
-                npcInfo.setAccelerationX(npc.getXAcceleration());
-                npcInfo.setAccelerationY(npc.getYAcceleration());
-                npcInfo.setType(npc.getClass().getSimpleName());
-                npcInfos.add(npcInfo);
-
-                if(npcInfo.getState() == Npc.NPC_STATE_DEAD) {
-                    this.removeGameEntity(npc);
-                }
-            }
-        }
-
-        final String playerUpdatesMessage = ServerPlayerUpdate.jsonSerializeAll(playerUpdates);
-        final String bulletUpdatesMessage = BulletInfo.jsonSerialize(bulletUpdates);
-        final String npcUpdatesMessage = NpcInfo.jsonSerializeAll(npcInfos);
-        for(final Player player: allPlayers) {
-            messageTransmitter.transmitMessage(player, playerUpdatesMessage);
-            messageTransmitter.transmitMessage(player, bulletUpdatesMessage);
-            messageTransmitter.transmitMessage(player, npcUpdatesMessage);
         }
     }
 
@@ -288,7 +201,9 @@ public class NewGameWorld implements Runnable {
 
     public void removeGameEntity(final GameEntity entity) {
         synchronized (this.gameEntities) {
-            gameEntities.remove(entity);
+            if(!gameEntities.remove(entity)) {
+                return;
+            }
         }
 
         synchronized (this.worldEventListeners) {

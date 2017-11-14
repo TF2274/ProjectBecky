@@ -7,22 +7,8 @@ public class InitialServerJoinState implements NetworkedMessage {
     private String authenticationString;
     private float initialLocationX;
     private float initialLocationY;
+    private long playerId;
 
-    public InitialServerJoinState(final String json) {
-        final int jsonStartIndex = json.indexOf('{');
-        if(jsonStartIndex == -1) {
-            throw new IllegalArgumentException("Invalid JSON Object");
-        }
-        if(!json.startsWith(InitialServerJoinState.class.getSimpleName())) {
-            throw new IllegalArgumentException("The given JSON object is not a valid InitialServerJoinState object.");
-        }
-
-        final JSONObject obj = new JSONObject(json.substring(jsonStartIndex));
-        this.initialUsername = obj.getString("initialUsername");
-        this.authenticationString = obj.getString("authenticationString");
-        this.initialLocationX = obj.getInt("initialLocationX");
-        this.initialLocationY = obj.getInt("initialLocationY");
-    }
 
     public InitialServerJoinState() {}
 
@@ -56,6 +42,14 @@ public class InitialServerJoinState implements NetworkedMessage {
 
     public void setInitialLocationY(final float initialLocationY) {
         this.initialLocationY = initialLocationY;
+    }
+
+    public void setPlayerId(final long id) {
+        this.playerId = id;
+    }
+
+    public long getPlayerId() {
+        return this.playerId;
     }
 
     @Override

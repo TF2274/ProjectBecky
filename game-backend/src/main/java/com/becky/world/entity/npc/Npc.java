@@ -1,5 +1,6 @@
 package com.becky.world.entity.npc;
 
+import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.physics.BulletCollisionDetector;
@@ -11,7 +12,6 @@ public abstract class Npc extends GameEntity {
     public static final int NPC_STATE_UPDATE = 112;
     public static final int NPC_STATE_DEAD = 113;
 
-    private int npcState = NPC_STATE_NEW;
     protected int npcHealth;
     protected int pointsValue = 0;
 
@@ -22,28 +22,15 @@ public abstract class Npc extends GameEntity {
         super.addPhysicsFilter(BulletCollisionDetector.class);
     }
 
-    public int getNpcState() {
-        if(npcState == NPC_STATE_NEW) {
-            npcState = NPC_STATE_UPDATE;
-            return NPC_STATE_NEW;
-        }
-
-        return npcState;
-    }
-
-    public void setNpcState(final int npcState) {
-        this.npcState = npcState;
-    }
-
     public int getNpcHealth() {
         return this.npcHealth;
     }
 
     public void setNpcHealth(final int health) {
         this.npcHealth = health;
-        if(this.npcHealth < 0) {
+        if(this.npcHealth <= 0) {
             this.npcHealth = 0;
-            this.npcState = NPC_STATE_DEAD;
+            super.setState(STATE_DEAD);
         }
     }
 
@@ -53,5 +40,12 @@ public abstract class Npc extends GameEntity {
 
     public int getNpcPointsValue() {
         return this.pointsValue;
+    }
+
+    @Override
+    public EntityMessage getUpdateMessage() {
+        final EntityMessage message = super.getUpdateMessage();
+        message.setHealth(npcHealth);
+        return message;
     }
 }

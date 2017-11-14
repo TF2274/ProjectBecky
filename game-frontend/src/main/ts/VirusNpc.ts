@@ -29,9 +29,10 @@ class VirusNpc extends Npc {
     private transformedPoints: Point[] = [];
     private vectorDraw: VectorDrawInstance = new VectorDrawInstance();
 
-    constructor(parent: GameEntity, npcId: number) {
-        super(parent, npcId, VirusNpc.max_velocity);
+    constructor() {
+        super();
 
+        this.max_velocity = VirusNpc.max_velocity;
         //init the point objects for the transformed points
         for(let i = 0; i < 13; i++) {
             this.transformedPoints[i] = new Point();

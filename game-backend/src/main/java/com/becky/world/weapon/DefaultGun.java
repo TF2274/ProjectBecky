@@ -2,6 +2,7 @@ package com.becky.world.weapon;
 
 import com.becky.world.entity.Bullet;
 import com.becky.world.entity.DefaultBullet;
+import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
 
 public class DefaultGun implements Gun {
@@ -37,7 +38,7 @@ public class DefaultGun implements Gun {
         final float pX = cos * 32 + weilder.getXPosition();
         final float pY = sin * 32 + weilder.getYPosition();
         final Bullet bullet = new DefaultBullet(weilder, pX, pY, vX, vY);
-        bullet.setState(Bullet.STATE_NEW_BULLET);
+        bullet.setState(GameEntity.STATE_NEW);
         weilder.getGameWorld().addGameEntity(bullet);
         lastFireTime = currentTime;
     }

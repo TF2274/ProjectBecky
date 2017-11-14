@@ -2,16 +2,11 @@ package com.becky.networking;
 
 import com.becky.util.MathUtils;
 import com.becky.util.StringUtils;
-import com.becky.networking.message.BulletInfo;
 import com.becky.networking.message.ClientInputStateUpdate;
-import com.becky.networking.message.InitialPlayerList;
 import com.becky.networking.message.InitialServerJoinState;
-import com.becky.networking.message.PlayerListChange;
-import com.becky.networking.message.ServerPlayerUpdate;
 import com.becky.networking.message.ServerUsernameRequestStatus;
 import com.becky.networking.message.UsernameChangeRequest;
 import com.becky.world.NewGameWorld;
-import com.becky.world.entity.Bullet;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
 import org.java_websocket.WebSocket;
@@ -20,9 +15,6 @@ import org.java_websocket.server.WebSocketServer;
 
 import java.awt.geom.Point2D;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class SimpleServer extends WebSocketServer {
     private final NewGameWorld gameInstance;
@@ -38,7 +30,6 @@ public class SimpleServer extends WebSocketServer {
 
         final Player player = gameInstance.getPlayerByConnection(webSocket);
         if(player != null) {
-            sendUserJoinedGameMessage(player.getPlayerUsername(), false);
             gameInstance.removePlayerByUsername(player.getPlayerUsername());
         }
     }
@@ -55,8 +46,9 @@ public class SimpleServer extends WebSocketServer {
             System.out.println("Unknown player disconnected. Reason: " + s);
         }
         else {
-            gameInstance.removePlayerByUsername(player.getPlayerUsername());
-            sendUserJoinedGameMessage(player.getPlayerUsername(), false);
+            //this will make the game engine automatically tell everyone the player left as well as
+            //remove the player from the entity list.
+            player.setState(GameEntity.STATE_DEAD);
             System.out.println("Player " + player.getPlayerUsername() + " disconnected. Reason: " + s);
         }
     }
@@ -89,6 +81,7 @@ public class SimpleServer extends WebSocketServer {
         initialJoinState.setInitialUsername(username);
         initialJoinState.setInitialLocationX(player.getXPosition());
         initialJoinState.setInitialLocationY(player.getYPosition());
+        initialJoinState.setPlayerId(player.getEntityId());
 
         //json serialize and transmit the initial join state to the client
         gameInstance.getMessageTransmitter().transmitMessage(player, initialJoinState.jsonSerialize());
@@ -133,9 +126,6 @@ public class SimpleServer extends WebSocketServer {
                 gameInstance.addPlayer(player);
                 status.setStatus("success");
                 status.setMessage(request.getNewUsername());
-                sendUserJoinedGameMessage(request.getNewUsername(), true);
-                sendInitialPlayerList(player);
-                sendInitialBulletsList(player);
             }
             else {
                 status.setStatus("failed");
@@ -187,56 +177,5 @@ public class SimpleServer extends WebSocketServer {
             throw new RuntimeException("Bad authentication string.");
         }
         return player;
-    }
-
-    private void sendUserJoinedGameMessage(final String joinedUsername, final boolean joined) {
-        final PlayerListChange listChange = new PlayerListChange();
-        listChange.setUsername(joinedUsername);
-        listChange.setJoined(joined);
-        final String jsonMessage = listChange.jsonSerialize();
-
-        final Collection<Player> allPlayers = gameInstance.getAllPlayers();
-        final MessageTransmitter transmitter = gameInstance.getMessageTransmitter();
-        for(final Player player: allPlayers) {
-            if(player.getPlayerUsername().equals(joinedUsername)) {
-                continue;
-            }
-            transmitter.transmitMessage(player, jsonMessage);
-        }
-    }
-
-    private void sendInitialPlayerList(final Player dest) {
-        final Collection<Player> allPlayers = gameInstance.getAllPlayers();
-        final List<ServerPlayerUpdate> updates = new ArrayList<>();
-        for(final Player player: allPlayers) {
-            if(player.equals(dest)) {
-                continue;
-            }
-
-            final ServerPlayerUpdate update = new ServerPlayerUpdate();
-            update.setPlayerName(player.getPlayerUsername());
-            update.setPosX(player.getXPosition());
-            update.setPosY(player.getYPosition());
-            updates.add(update);
-        }
-
-        final InitialPlayerList initialPlayerList = new InitialPlayerList();
-        initialPlayerList.setPlayers(updates);
-        gameInstance.getMessageTransmitter().transmitMessage(dest, initialPlayerList.jsonSerialize());
-    }
-
-    private void sendInitialBulletsList(final Player dest) {
-        final List<GameEntity> entities = gameInstance.getAllGameEntities();
-        final List<BulletInfo> bulletInfosList = new ArrayList<>();
-        for(final GameEntity entity: entities) {
-            if(entity instanceof Bullet) {
-                final Bullet bullet = (Bullet)entity;
-                final BulletInfo info = new BulletInfo(bullet.getOwner().getPlayerUsername(), Bullet.STATE_NEW_BULLET,
-                    bullet.getEntityId(), bullet.getXVelocity(), bullet.getYVelocity(), bullet.getXPosition(), bullet.getYPosition());
-                bulletInfosList.add(info);
-            }
-        }
-
-        gameInstance.getMessageTransmitter().transmitMessage(dest, BulletInfo.jsonSerialize(bulletInfosList));
     }
 }

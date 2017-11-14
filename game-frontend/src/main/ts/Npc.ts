@@ -14,10 +14,13 @@ abstract class Npc extends GameEntity implements Renderable {
     protected compensationVelocity: Point = new Point(0, 0);
     protected compensationFrames: number = 0;
 
-    protected constructor(parent: GameEntity, npcId: number, max_velocity: number) {
-        super(max_velocity);
-        this.parent = parent;
-        this.npcId = npcId;
+    constructor() {
+        super();
+    }
+
+    public receiveMessage(message: EntityMessage): void {
+        super.receiveMessage(message);
+        this.health = message.health;
     }
 
     /**

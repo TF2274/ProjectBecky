@@ -32,9 +32,7 @@ class GameClient extends GameEntity {
     private canvas: HTMLCanvasElement;
     private connection: WebSocket;
     private player: ClientPlayer;
-    private opponents: Set<OpponentPlayer> = new Set<OpponentPlayer>();
-    private bullets: Set<Bullet> = new Set<Bullet>();
-    private npcs: Set<Npc> = new Set<Npc>();
+    private entities: Set<GameEntity> = new Set();
     private renderer: SimpleRenderer;
     private playing: boolean = true;
     private username: string;
@@ -42,6 +40,7 @@ class GameClient extends GameEntity {
     private background: GameBackground;
     private numFrames: number = 0;
     private lagCompensator: LagCompensator = new LagCompensator(30);
+    private playerId: number;
 
     /**
      * Creates a new GameClient instance.
@@ -49,8 +48,8 @@ class GameClient extends GameEntity {
      * @param connection An established connection to the server.
      * @param Username of the player
      */
-    constructor(canvas: HTMLCanvasElement, connection: WebSocket, username: string, authenticationString: string) {
-        super(0);
+    constructor(canvas: HTMLCanvasElement, connection: WebSocket, username: string, playerId: number, authenticationString: string) {
+        super();
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         this.canvas = canvas;
@@ -59,6 +58,7 @@ class GameClient extends GameEntity {
         this.authenticationString = authenticationString;
         this.background = new GameBackground(this.canvas.width, this.canvas.height, 2000, 2000);
         this.gameUI = new GameUI(this.canvas.width, this.canvas.height);
+        this.playerId = playerId;
         this.init();
     }
 
@@ -67,44 +67,7 @@ class GameClient extends GameEntity {
     }
 
     public getChildEntities(): Set<GameEntity> {
-        let entities: Set<GameEntity> = new Set<GameEntity>();
-        entities.add(this.player);
-        for (let i: number = 0; i < this.opponents.length; i++) {
-            entities.add(this.opponents[i]);
-        }
-        return entities;
-    }
-
-    public setInitialPlayers = (initialPlayers: InitialPlayerList): void => {
-        let players: ServerPlayerUpdate[] = initialPlayers.players;
-        if(!players) {
-            return;
-        }
-        let length: number = players.length;
-        for(let i = 0; i < length; i++) {
-            let player: ServerPlayerUpdate = players[i];
-            let opponent = new OpponentPlayer(this, player.playerName);
-            opponent.setPosition(player.posX, player.posY);
-            this.renderer.addRenderable(opponent);
-            this.opponents.add(opponent);
-        }
-    }
-
-    public setInitialBullets = (initialBullets: BulletInfo[]): void => {
-        let length: number = initialBullets.length;
-        for(let i = 0; i < length; i++) {
-            let ib: BulletInfo = initialBullets[i];
-            let p: Player = this.getPlayerByUsername(ib.owner);
-
-            if(p === null) {
-                continue;
-            }
-            else if(this.getBulletEntityById(ib.bulletId) === null){
-                let b: Bullet = new Bullet(p, ib.bulletId, new Point(ib.positionX, ib.positionY), new Point(ib.velocityX, ib.velocityY));
-                this.renderer.addRenderable(b);
-                this.bullets.add(b);
-            }
-        }
+        return this.entities;
     }
 
     private frameStart: number;
@@ -123,7 +86,7 @@ class GameClient extends GameEntity {
         }
 
         this.updateGame(elapsedTime);
-        this.draw();
+        this.render();
 
         //Once every 4 frames send the current state of the client input to the server
         if(this.numFrames % 4 === 0) {
@@ -136,6 +99,7 @@ class GameClient extends GameEntity {
 
         //30 fps is 33 milliseconds per frame
         //if frame took less than 34 millis to complete then waitout the remaining time
+        elapsedTime = Date.now() - this.frameStart;
         let waitTime: number = GameClient.TIME_PER_FRAME - elapsedTime;
 
         if(waitTime < 0) {
@@ -150,19 +114,9 @@ class GameClient extends GameEntity {
         //update current player
         this.player.update(elapsedTime);
 
-        //update opponent player
-        for(let i: number = 0; i < this.opponents.length; i++) {
-            this.opponents.get(i).update(elapsedTime);
-        }
-
-        //update bullets
-        for(let i: number = 0; i < this.bullets.length; i++) {
-            this.bullets.get(i).update(elapsedTime);
-        }
-
-        //update npcs
-        for(let i: number = 0; i < this.npcs.length; i++) {
-            this.npcs.get(i).update(elapsedTime);
+        //update entities
+        for(let i = 0; i < this.entities.length; i++) {
+            this.entities.get(i).update(elapsedTime);
         }
     }
 
@@ -185,7 +139,7 @@ class GameClient extends GameEntity {
         this.background.setViewHeight(this.canvas.height);
     }
 
-    private draw(): void {
+    private render(): void {
         //this might be all that has to be done. Maybe.
         let sx = this.player.getXPosition() - this.canvas.width/2;
         let sy = this.player.getYPosition() - this.canvas.height/2;
@@ -219,7 +173,13 @@ class GameClient extends GameEntity {
 
     private initPlayer(): void {
         this.background = new GameBackground(this.canvas.width, this.canvas.height, this.worldWidth, this.worldHeight);
-        this.player = new ClientPlayer(this, 0, 0, 0, this.username);
+        let message: EntityMessage = new EntityMessage();
+        message.username = this.username;
+        message.entityId = this.playerId;
+        this.player = new ClientPlayer();
+        this.player.receiveMessage(message);
+        this.player.setEntityId(this.playerId);
+        this.player.setParentEntity(this);
         this.background.linkPlayer(this.player);
         this.gameUI = new GameUI(this.canvas.width, this.canvas.height);
         this.gameUI.linkPlayer(this.player);
@@ -260,116 +220,19 @@ class GameClient extends GameEntity {
 
     private handleMessageFromServer(message: string): void {
         let object = null;
-        if((object = ServerPlayerUpdate.getValidArrayFromJson(message)) !== null) {
-            let updates: ServerPlayerUpdate[] = object as ServerPlayerUpdate[];
-
-            // Update current players
-            for(let i = 0; i < updates.length; i++) {
-                let serverUpdate: ServerPlayerUpdate = updates[i];
-                let affectedPlayer: Player = this.getPlayerByUsername(serverUpdate.playerName);
-                if(affectedPlayer !== null) {
-                    this.lagCompensator.compensateClientPlayer(affectedPlayer, serverUpdate);
-                    affectedPlayer.setHealth(serverUpdate.health);
-                }
+        //message contains a game entity update
+        if((object = EntityMessage.parseArray(message)) !== null) {
+            let messages: EntityMessage[] = object as EntityMessage[];
+            for(let i = 0; i < messages.length; i++) {
+                let msg: EntityMessage = messages[i];
+                this.handleEntityMessage(msg);
             }
         }
-        if((object = BulletInfo.getValidArrayFromJson(message)) !== null) {
-            let bulletInfos: BulletInfo[] = object as BulletInfo[];
-            let length: number = bulletInfos.length;
-
-            for(let i = 0; i < length; i++) {
-                let bulletInfo: BulletInfo = bulletInfos[i];
-                if(bulletInfo.state === 0) {//new bullet
-                    let p: Player = this.getPlayerByUsername(bulletInfo.owner);
-                    if(p === null) {
-                        continue;
-                    }
-                    let position: Point = new Point(bulletInfo.positionX, bulletInfo.positionY);
-                    let velocity: Point = new Point(bulletInfo.velocityX, bulletInfo.velocityY);
-                    let bullet: Bullet = new Bullet(p, bulletInfo.bulletId, position, velocity);
-                    if(p !== this.player) {
-                        bullet.setFillColor("#ff543c");
-                    }
-                    this.bullets.add(bullet);
-                    this.renderer.addRenderable(bullet);
-                    this.lagCompensator.compensateBullet(bullet, bulletInfo);
-                }
-                else if(bulletInfo.state === 1) { //updated bullet
-                    let bullet: Bullet = this.getBulletEntityById(bulletInfo.bulletId);
-                    if(bullet === null) {
-                        return;
-                    }
-                    this.lagCompensator.compensateBullet(bullet, bulletInfo);
-                }
-                else if(bulletInfo.state === 2) { //dead bullet
-                    let bullet: Bullet = this.getBulletEntityById(bulletInfo.bulletId);
-                    if(bullet !== null) {
-                        this.renderer.removeRenderable(bullet);
-                        this.bullets.remove(bullet);
-                    }
-                }
-            }
+        else if((object = EntityMessage.parseObject(message)) !== null) {
+            let msg: EntityMessage = object as EntityMessage;
+            this.handleEntityMessage(msg);
         }
-        else if((object = NpcInfo.getValidArrayFromJson(message)) !== null) {
-            let npcInfos: NpcInfo[] = object as NpcInfo[];
-            let length: number = npcInfos.length;
-
-            for(let i = 0; i < length; i++) {
-                let npcInfo: NpcInfo = npcInfos[i];
-                if(npcInfo.state === Npc.STATE_NEW_NPC) {
-                    let n: Npc = this.getNpcById(npcInfo.npcId);
-                    if(n !== null) {
-                        this.lagCompensator.compensateNpc(n, npcInfo);
-                        n.setHealth(npcInfo.health);
-                    }
-                    else {
-                        this.spawnNpc(npcInfo);
-                    }
-                }
-                else if(npcInfo.state === Npc.STATE_UPDATE_NPC) {
-                    let npc: Npc = this.getNpcById(npcInfo.npcId);
-                    if(npc !== null) {
-                        this.lagCompensator.compensateNpc(npc, npcInfo);
-                        npc.setHealth(npcInfo.health);
-                    }
-                    else {
-                        this.spawnNpc(npcInfo);
-                    }
-                }
-                else if(npcInfo.state === Npc.STATE_DEAD_NPC) {
-                    let npc: Npc = this.getNpcById(npcInfo.npcId);
-                    if(npc !== null) {
-                        this.renderer.removeRenderable(npc);
-                        this.npcs.remove(npc);
-                    }
-                }
-            }
-        }
-        else if((object = PlayerListChange.getValidObjectFromJson(message)) !== null) {
-            //It should be noted that the server only sends this message when a client disconnects from the server
-            //or when the server force closes a connection
-            let change: PlayerListChange = object as PlayerListChange;
-            if(change.joined) {
-                //player joined game, so add them to the renderer and opponents list
-                let opponent: OpponentPlayer = new OpponentPlayer(this, change.username);
-                this.opponents.add(opponent);
-                this.renderer.addRenderable(opponent);
-            }
-            else {
-                //player left game, so remove from renderer and opponents list
-                let username: string = change.username;
-                let player: Player = this.getPlayerByUsername(username);
-                if(player instanceof ClientPlayer) {
-                    this.connection.close(1000, "Disconnected");
-                    this.resetGamePage("Disconnected from server.");
-                }
-                else {
-                    let opponent: OpponentPlayer = player as OpponentPlayer;
-                    this.renderer.removeRenderable(opponent);
-                    this.opponents.remove(opponent);
-                }
-            }
-        }
+        //message is a ping response
         else if(message.substring(0, 5) === "PING:") {
             let time: number = parseInt(message.substring(5));
             let latency: number = Math.floor((Date.now() - time) / 2);
@@ -380,23 +243,7 @@ class GameClient extends GameEntity {
                 this.lagCompensator.setLatency(latency);
             }
         }
-        else if((object = PointsUpdate.getValidObjectFromJson(message)) !== null) {
-            let points: PointsUpdate = object as PointsUpdate;
-            if(this.player.getUsername() === points.username) {
-                this.player.setScore(points.numPoints);
-            }
-        }
-        else if((object = PlayerHealthMessage.getValidObjectFromJson(message)) !== null) {
-            let health: PlayerHealthMessage = object as PlayerHealthMessage;
-            if (this.player.getUsername() === health.username) {
-                this.player.setHealth(health.health);
-            }
-
-            if (health.health < 1) {
-                this.connection.close(1000, "Player died.");
-                this.resetGamePage("Killed by " + health.affectedBy + ". You had " + this.player.getScore() + " points.");
-            }
-        }
+        //message is a high score update
         else if((object = HighscoreInfo.getValidObjectFromJson(message)) !== null) {
             let high_scores: HighscoreInfo = object as HighscoreInfo;
             let usernames: string[] = high_scores.players;
@@ -410,6 +257,38 @@ class GameClient extends GameEntity {
                 }
             }
             this.gameUI.linkLeaderBoardList(players);
+        }
+    }
+
+    private handleEntityMessage(message: EntityMessage): void {
+        let entity: GameEntity = this.getEntityById(message.entityId);
+
+        //handle situations where the game entity is null
+        //if the entity is null, but the server said the entity is dead anyways, then ignore
+        //if the entity is null, but the server says it exists, then create a new entity
+        //and add it to the entity list and renderer
+        if(entity === null) {
+            if(message.state === EntityMessage.STATE_DEAD) {
+                return;
+            }
+            else {
+                entity = this.createGameEntity(message);
+                this.entities.add(entity);
+                this.renderer.addRenderable(entity as any);
+                return;
+            }
+        }
+        else {
+            //entity is not null. Remove it if the server says the entity died
+            if(message.state === EntityMessage.STATE_DEAD) {
+                this.renderer.removeRenderable(entity as any);
+                this.entities.remove(entity);
+            }
+            else {
+                //use the lag compensator to update the entity since the entity still exists
+                //this.lagCompensator.compensateEntityMessage(entity, message);
+                this.lagCompensator.compensateEntityMessage(entity, message);
+            }
         }
     }
 
@@ -475,53 +354,66 @@ class GameClient extends GameEntity {
         this.player.setAngle(angle);
     }
 
-    private getNpcById = (npcId: number): Npc => {
-        let length: number = this.npcs.length;
+    private getEntityById(id: number): GameEntity {
+        if(this.player.getEntityId() === id) {
+            return this.player;
+        }
+
+        let length: number = this.entities.length;
         for(let i = 0; i < length; i++) {
-            if(this.npcs.get(i).getNpcId() === npcId) {
-                return this.npcs.get(i);
+            let e: GameEntity = this.entities.get(i);
+            if(typeof e === 'undefined') {
+                continue;
+            }
+            if(e.getEntityId() === id) {
+                return e;
             }
         }
+
         return null;
     }
 
-    private getPlayerByUsername = (username: string): Player => {
+    private getPlayerByUsername(username: string): Player {
         if(this.player.getUsername() === username) {
             return this.player;
         }
 
-        let length: number = this.opponents.length;
-        for(let i = 0; i < length; i++) {
-            if(this.opponents.get(i).getUsername() === username) {
-                return this.opponents.get(i);
+        for(let i = 0; i < this.entities.length; i++) {
+            let e: GameEntity = this.entities.get(i);
+            if(e instanceof Player) {
+                let p: Player = e as Player;
+                if(p.getUsername() === username) {
+                    return p;
+                }
             }
         }
         return null;
     }
 
-    private getBulletEntityById = (id: number): Bullet => {
-        let length: number = this.bullets.length;
-        for(let i = 0; i < length; i++) {
-            if(this.bullets.get(i).getId() === id) {
-                return this.bullets.get(i);
-            }
+    private createGameEntity(message: EntityMessage): GameEntity {
+        let entity: GameEntity = null;
+        if(message.type === "Player") {
+            entity = new OpponentPlayer();
+        }
+        else if(message.type === "DefaultBullet") {
+            entity = new DefaultBullet();
+        }
+        else if(message.type === "InfectedNpc") {
+            entity = new InfectedNpc();
+        }
+        else if(message.type === "VirusNpc") {
+            entity = new VirusNpc();
+        }
+        else {
+            console.log("Bad Type: " + message.type);
+            return null;
         }
 
-        return null;
+        entity.setEntityId(message.entityId);
+        entity.receiveMessage(message);
+        entity.setPosition(message.XPosition, message.YPosition);
+        return entity;
     }
 
-    private spawnNpc = (npcInfo: NpcInfo): void => {
-        let npc: Npc = null;
-        if(npcInfo.type === "VirusNpc") {
-            npc = new VirusNpc(this, npcInfo.npcId);
-        }
-        else if(npcInfo.type === "InfectedNpc") {
-            npc = new InfectedNpc(this, npcInfo.npcId);
-        }
-
-        npc.setHealth(npcInfo.health);
-        this.lagCompensator.compensateNpc(npc, npcInfo);
-        this.renderer.addRenderable(npc);
-        this.npcs.add(npc);
-    }
+    public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {}
 }

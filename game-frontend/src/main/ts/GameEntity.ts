@@ -4,7 +4,7 @@
  * Represents any game entity. A game entity can be contained within any other
  * game entity, and can contain other game entities.
  */
-abstract class GameEntity implements Updateable {
+abstract class GameEntity implements Updateable, Renderable {
     protected children: Set<GameEntity> = new Set<GameEntity>();
     protected parent: GameEntity = null;
 
@@ -20,10 +20,41 @@ abstract class GameEntity implements Updateable {
     protected angles: number = 0;
     protected deceleration: number = 0;
 
-    private max_velocity: number = 0;
+    protected entityId: number = -1;
+    protected max_velocity: number = 0;
 
-    constructor(max_velocity: number) {
-        this.max_velocity = max_velocity;
+    constructor() {
+    }
+
+    /**
+     * Applies information contained in an entity message to this object
+     * @param {EntityMessage} message
+     */
+    public receiveMessage(message: EntityMessage): void {
+        this.xAcceleration = message.XAcceleration;
+        this.yAcceleration = message.YAcceleration;
+        this.xVelocity = message.XVelocity;
+        this.yVelocity = message.YVelocity;
+        this.angles = message.angle;
+    }
+
+    /**
+     * Gets the ID of this entity.
+     * @returns {number}
+     */
+    public getEntityId(): number {
+        return this.entityId;
+    }
+
+    /**
+     * Sets the entity id of this entity.
+     * This method will only work on the first call.
+     * @param {number} id
+     */
+    public setEntityId(id: number): void {
+        if(this.entityId == -1) {
+            this.entityId = id;
+        }
     }
 
     /**
@@ -191,6 +222,8 @@ abstract class GameEntity implements Updateable {
         this.capVelocity();
         this.updatePosition(multiplier);
     }
+
+    public abstract draw(context: CanvasRenderingContext2D, screenOrigin: Point): void;
 
     private updateVelocity(multiplier: number): void {
         if(Math.abs(this.xAcceleration) < 0.1) {
