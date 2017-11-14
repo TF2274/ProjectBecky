@@ -48,7 +48,7 @@ public class SimpleServer extends WebSocketServer {
         else {
             //this will make the game engine automatically tell everyone the player left as well as
             //remove the player from the entity list.
-            player.setState(GameEntity.STATE_DEAD);
+            gameInstance.removePlayerByUsername(player.getPlayerUsername());
             System.out.println("Player " + player.getPlayerUsername() + " disconnected. Reason: " + s);
         }
     }

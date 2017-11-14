@@ -113,9 +113,20 @@ public class NewGameWorld implements Runnable {
 
     private void removeDeadEntities() {
         final List<GameEntity> allEntities = getAllGameEntities();
+        final List<Player> allPlayers = getAllPlayers();
         for(final GameEntity entity: allEntities) {
             if(entity.getState() == GameEntity.STATE_DEAD) {
                 removeGameEntity(entity);
+            }
+        }
+        for(final Player player: allPlayers) {
+            if(player.getState() == GameEntity.STATE_DEAD) {
+                synchronized (this.players) {
+                    this.players.remove(player.getPlayerUsername());
+                }
+                synchronized (this.deadPlayers) {
+                    this.deadPlayers.put(player.getPlayerUsername(), player);
+                }
             }
         }
     }

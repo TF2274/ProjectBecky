@@ -125,6 +125,9 @@ public class Player extends GameEntity {
     public EntityMessage getUpdateMessage() {
         final EntityMessage message = super.getUpdateMessage();
         message.setUsername(playerUsername);
+        if(this.health == 0) {
+            message.setUsername(this.healthAffectedBy);
+        }
         message.setHealth(health);
         message.setScore(score);
         return message;

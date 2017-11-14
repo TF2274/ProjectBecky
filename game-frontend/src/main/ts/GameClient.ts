@@ -283,6 +283,10 @@ class GameClient extends GameEntity {
             if(message.state === EntityMessage.STATE_DEAD) {
                 this.renderer.removeRenderable(entity as any);
                 this.entities.remove(entity);
+
+                if(this.player === entity) {
+                    this.resetGamePage("You were killed by: " + message.username + "\nScore: " + message.score);
+                }
             }
             else {
                 //use the lag compensator to update the entity since the entity still exists
