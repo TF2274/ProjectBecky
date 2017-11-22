@@ -9,12 +9,14 @@ import com.becky.world.physics.WorldBorderCollisionDetector;
 public abstract class Bullet extends GameEntity {
     protected final Player owner;
     protected final int damageAmount;
+    protected float remainingHealth = 0.0f;
 
     protected Bullet(final Player owner,
                      final float xPosition,
                      final float yPosition,
                      final float xVelocity,
                      final float yVelocity,
+                     final float travelDistance,
                      final int damageAmount) {
         super(owner.getGameWorld());
         super.addPhysicsFilter(WorldBorderCollisionDetector.class);
@@ -24,7 +26,7 @@ public abstract class Bullet extends GameEntity {
         velocity.x = xVelocity;
         velocity.y = yVelocity;
         this.damageAmount = damageAmount;
-        super.collisionRadius = 24;
+        this.remainingHealth = travelDistance;
     }
 
     /**
@@ -47,7 +49,9 @@ public abstract class Bullet extends GameEntity {
      * Gets the remaining health of this bullet.
      * @return
      */
-    public abstract float getRemainingHealth();
+    public float getRemainingHealth() {
+        return this.remainingHealth;
+    }
 
     @Override
     public void setXVelocity(final float xVelocity) {
@@ -83,6 +87,16 @@ public abstract class Bullet extends GameEntity {
 
     @Override
     public void tick(final long elapsedTime) {
+        final float multiplier = elapsedTime / 1000.0f;
+        final float deltaX = this.velocity.x * multiplier;
+        final float deltaY = this.velocity.y * multiplier;
+        this.position.x += deltaX;
+        this.position.y += deltaY;
+        this.remainingHealth -= (deltaX + deltaY);
+        if(this.remainingHealth <= 0.0f) {
+            super.setState(STATE_DEAD);
+        }
+
         if(Math.abs(this.velocity.x) < 0.1f && Math.abs(this.velocity.y) < 0.1f) {
             super.setState(STATE_DEAD);
         }
@@ -91,7 +105,7 @@ public abstract class Bullet extends GameEntity {
     @Override
     public EntityMessage getUpdateMessage() {
         final EntityMessage message = super.getUpdateMessage();
-        message.setOwner(owner.getPlayerUsername());
+        message.setOwner(this.owner.getPlayerUsername());
         return message;
     }
 }

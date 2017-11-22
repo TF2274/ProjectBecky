@@ -3,7 +3,6 @@ package com.becky.world.entity.npc;
 import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
 import com.becky.world.entity.GameEntity;
-import com.becky.world.physics.BulletCollisionDetector;
 import com.becky.world.physics.NpcCollisionDetector;
 import com.becky.world.physics.WorldBorderCollisionDetector;
 
@@ -19,7 +18,6 @@ public abstract class Npc extends GameEntity {
         super(gameWorld);
         super.addPhysicsFilter(WorldBorderCollisionDetector.class);
         super.addPhysicsFilter(NpcCollisionDetector.class);
-        super.addPhysicsFilter(BulletCollisionDetector.class);
     }
 
     public int getNpcHealth() {

@@ -130,6 +130,16 @@ class VectorDrawInstance {
         context.fill();
     }
 
+    /**
+     * Gets the points in their current state.
+     * For example, if the local points have been translated to screen space, then the points
+     * will be the screen space points.
+     * @returns {Point[]}
+     */
+    public getPoints(): Point[] {
+        return this.points;
+    }
+
     private translate(x: number, y: number): void {
         for(let i = 0; i < this.numPoints; i++) {
             let p: Point = this.points[i];

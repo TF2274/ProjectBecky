@@ -400,7 +400,18 @@ class GameClient extends GameEntity {
             entity = new OpponentPlayer();
         }
         else if(message.type === "DefaultBullet") {
-            entity = new DefaultBullet();
+            let bullet: DefaultBullet = new DefaultBullet();
+            if(message.owner === this.player.getUsername()) {
+                bullet.setFillColor("#a8ff96");
+            }
+            entity = bullet;
+        }
+        else if(message.type === "RailBullet") {
+            let bullet: RailBullet = new RailBullet();
+            if(message.owner === this.player.getUsername()) {
+                bullet.setFillColor("#a8ff96");
+            }
+            entity = bullet;
         }
         else if(message.type === "InfectedNpc") {
             entity = new InfectedNpc();
@@ -414,8 +425,8 @@ class GameClient extends GameEntity {
         }
 
         entity.setEntityId(message.entityId);
-        entity.receiveMessage(message);
-        entity.setPosition(message.XPosition, message.YPosition);
+        this.lagCompensator.compensateEntityMessage(entity, message);
+
         return entity;
     }
 

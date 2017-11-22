@@ -2,15 +2,12 @@ package com.becky.world.entity;
 
 import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
-import com.becky.world.physics.BulletCollisionDetector;
-import com.becky.world.physics.PhysicsFilter;
 import com.becky.world.physics.PlayerCollisionDetector;
 import com.becky.world.physics.WorldBorderCollisionDetector;
 import com.becky.world.weapon.DefaultGun;
 import com.becky.world.weapon.Gun;
+import com.becky.world.weapon.RailGun;
 import org.java_websocket.WebSocket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Player extends GameEntity {
     public static final float MAX_VELOCITY = 450.0f;
@@ -38,7 +35,6 @@ public class Player extends GameEntity {
     public Player(final NewGameWorld gameWorld, final String playerUsername, final String authenticationString, final WebSocket connection) {
         super(gameWorld);
         super.addPhysicsFilter(WorldBorderCollisionDetector.class);
-        super.addPhysicsFilter(BulletCollisionDetector.class);
         super.addPhysicsFilter(PlayerCollisionDetector.class);
         this.playerUsername = playerUsername;
         this.connection = connection;

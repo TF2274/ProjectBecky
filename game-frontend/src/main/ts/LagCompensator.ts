@@ -71,8 +71,8 @@ class LagCompensator {
         let delta: number = Math.sqrt(deltaX*deltaX + deltaY*deltaY);
 
         if(delta > LagCompensator.THRESHOLD_MAX_ADJUST) {
-             entity.setPosition(message.XPosition, message.YPosition);
-             entity.receiveMessage(message);
+            entity.setPosition(message.XPosition, message.YPosition);
+            entity.receiveMessage(message);
             return;
         }
 

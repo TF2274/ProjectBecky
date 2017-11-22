@@ -24,13 +24,15 @@ abstract class Bullet extends GameEntity implements Renderable {
 
     public update(elapsedTime: number): void {
         let multiplier: number = elapsedTime / 1000.0;
-        if(this.compensateFrames == 0) {
-            this.xPosition += this.xVelocity * multiplier;
-            this.yPosition += this.yVelocity * multiplier;
-        }
-        else {
+
+        if(this.compensateFrames > 0) {
             this.xPosition += (this.xVelocity + this.xCompensateVelocity) * multiplier;
             this.yPosition += (this.yVelocity + this.yCompensateVelocity) * multiplier;
+            this.compensateFrames--;
+        }
+        else {
+            this.xPosition += this.xVelocity * multiplier;
+            this.yPosition += this.yVelocity * multiplier;
         }
     }
 }

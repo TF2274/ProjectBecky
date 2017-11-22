@@ -7,7 +7,7 @@ import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
 import com.becky.world.entity.npc.NpcSpawner;
 import com.becky.world.entity.npc.SpawnRules;
-import com.becky.world.physics.BulletCollisionDetector;
+import com.becky.world.physics.DefaultBulletCollisionDetector;
 import com.becky.world.physics.NpcCollisionDetector;
 import com.becky.world.physics.PhysicsFilter;
 import com.becky.world.physics.PlayerCollisionDetector;
@@ -34,11 +34,11 @@ public class NewGameWorld implements Runnable {
     private final PlayerMessagingUtility playerMessagingUtility = new PlayerMessagingUtility(messageTransmitter);
 
     public NewGameWorld() {
-        physicsFilters.add(new BulletCollisionDetector(this));
+        physicsFilters.add(new DefaultBulletCollisionDetector(this));
         physicsFilters.add(new WorldBorderCollisionDetector(worldDimension.x, worldDimension.y));
         physicsFilters.add(new PlayerCollisionDetector(this));
         physicsFilters.add(new NpcCollisionDetector(this));
-        initNpcTypes();
+        //initNpcTypes();
     }
 
     public void start() {
@@ -97,8 +97,9 @@ public class NewGameWorld implements Runnable {
     private void applyPhysics(final List<GameEntity> entities) {
         for(final PhysicsFilter filter: physicsFilters) {
             filter.prepare();
+            final Class<? extends PhysicsFilter> filterClass = filter.getClass();
             for(final GameEntity entity: entities) {
-                if(entity.doesPhysicsApply(filter.getClass())) {
+                if(entity.doesPhysicsApply(filterClass)) {
                     filter.apply(entity);
                 }
             }
