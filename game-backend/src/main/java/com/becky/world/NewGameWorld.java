@@ -5,13 +5,9 @@ import com.becky.networking.PlayerMessagingUtility;
 import com.becky.networking.message.HighscoreInfo;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
-import com.becky.world.entity.npc.NpcSpawner;
-import com.becky.world.entity.npc.SpawnRules;
-import com.becky.world.physics.DefaultBulletCollisionDetector;
-import com.becky.world.physics.NpcCollisionDetector;
-import com.becky.world.physics.PhysicsFilter;
-import com.becky.world.physics.PlayerCollisionDetector;
-import com.becky.world.physics.WorldBorderCollisionDetector;
+import com.becky.world.entity.EntitySpawner;
+import com.becky.world.entity.SpawnRules;
+import com.becky.world.physics.*;
 import org.java_websocket.WebSocket;
 import org.reflections.Reflections;
 
@@ -29,7 +25,7 @@ public class NewGameWorld implements Runnable {
     private final List<PhysicsFilter> physicsFilters = new ArrayList<>();
     private final MessageTransmitter messageTransmitter = new MessageTransmitter();
     private final List<WorldEventListener> worldEventListeners = new ArrayList<>();
-    private final NpcSpawner spawner = new NpcSpawner(this);
+    private final EntitySpawner spawner = new EntitySpawner(this);
     private final Point2D.Float worldDimension = new Point2D.Float(8000.0f, 8000.0f);
     private final PlayerMessagingUtility playerMessagingUtility = new PlayerMessagingUtility(messageTransmitter);
 
@@ -38,6 +34,7 @@ public class NewGameWorld implements Runnable {
         physicsFilters.add(new WorldBorderCollisionDetector(worldDimension.x, worldDimension.y));
         physicsFilters.add(new PlayerCollisionDetector(this));
         physicsFilters.add(new NpcCollisionDetector(this));
+        physicsFilters.add(new BlackHolePhysics(this));
         initNpcTypes();
     }
 
@@ -177,7 +174,7 @@ public class NewGameWorld implements Runnable {
         for(final Class<? extends SpawnRules> npcSpawnRulesClass: npcSpawnRulesClasses) {
             try {
                 final Constructor<? extends SpawnRules> constructor = npcSpawnRulesClass.getConstructor();
-                this.spawner.addNpcSpawnRules(constructor.newInstance());
+                this.spawner.addEntitySpawnRules(constructor.newInstance());
             } catch (final NoSuchMethodException e) {
                 System.out.println("The NPC spawn rules class \"" + npcSpawnRulesClass.getSimpleName()
                     + "\" does not have a valid constructor. Did you make " +

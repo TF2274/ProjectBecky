@@ -5,6 +5,9 @@ import com.becky.world.NewGameWorld;
 import com.becky.world.WorldEventListener;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
+import com.becky.world.entity.SpawnRules;
+import com.becky.world.physics.BlackHolePhysics;
+import com.becky.world.physics.NpcCollisionDetector;
 
 import java.awt.geom.Point2D;
 import java.util.Collection;
@@ -24,6 +27,7 @@ public class InfectedNpc extends Npc implements WorldEventListener {
         super.npcHealth = 15;
         super.pointsValue = 25;
         super.deceleration = ACCELERATION;
+        super.addPhysicsFilter(NpcCollisionDetector.class);
         world.addWorldEventListener(this);
     }
 

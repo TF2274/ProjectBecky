@@ -2,9 +2,7 @@ package com.becky.world.entity;
 
 import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
-import com.becky.world.physics.CollisionMesh;
-import com.becky.world.physics.PlayerCollisionDetector;
-import com.becky.world.physics.WorldBorderCollisionDetector;
+import com.becky.world.physics.*;
 import com.becky.world.weapon.DefaultGun;
 import com.becky.world.weapon.Gun;
 import com.becky.world.weapon.RailGun;

@@ -2,6 +2,9 @@ package com.becky.world.entity.npc;
 
 import com.becky.util.MathUtils;
 import com.becky.world.NewGameWorld;
+import com.becky.world.entity.SpawnRules;
+import com.becky.world.physics.BlackHolePhysics;
+import com.becky.world.physics.NpcCollisionDetector;
 
 import java.awt.geom.Point2D;
 
@@ -30,6 +33,7 @@ public class VirusNpc extends Npc {
         super.acceleration.y = 0.0f;
         super.velocity.x = 0.0f;
         super.velocity.y = 0.0f;
+        super.addPhysicsFilter(NpcCollisionDetector.class);
     }
 
     @Override

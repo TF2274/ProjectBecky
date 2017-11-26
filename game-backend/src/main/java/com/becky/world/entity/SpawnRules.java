@@ -1,8 +1,7 @@
-package com.becky.world.entity.npc;
+package com.becky.world.entity;
 
 import com.becky.world.NewGameWorld;
 import com.becky.world.WorldEventListener;
-import com.becky.world.entity.GameEntity;
 
 /**
  * Represents NPC Spawn rules to be followed by an NPC Spawner
@@ -16,13 +15,13 @@ public abstract class SpawnRules implements WorldEventListener {
     private int currentPopulation;
     private long spawnInterval;
     private long nextIntervalTime;
-    private final Class<? extends GameEntity> npcClassType;
+    private final Class<? extends GameEntity> entityClassType;
 
     protected SpawnRules(final Class<? extends GameEntity> npcClassType) {
         maxPopulation = INFINITE_POPULATION;
         spawnInterval = NO_INTERVAL;
         nextIntervalTime = NO_INTERVAL;
-        this.npcClassType = npcClassType;
+        this.entityClassType = npcClassType;
     }
 
     /**
@@ -91,14 +90,14 @@ public abstract class SpawnRules implements WorldEventListener {
 
     @Override
     public void onGameEntityAdded(final NewGameWorld gameWorld, final GameEntity entity) {
-        if(this.npcClassType.isInstance(entity)) {
+        if(this.entityClassType.isInstance(entity)) {
             this.currentPopulation++;
         }
     }
 
     @Override
     public void onGameEntityRemoved(final NewGameWorld gameWorld, final GameEntity entity) {
-        if(this.npcClassType.isInstance(entity)) {
+        if(this.entityClassType.isInstance(entity)) {
             this.currentPopulation--;
         }
     }

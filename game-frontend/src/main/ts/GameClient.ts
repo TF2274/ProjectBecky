@@ -6,6 +6,7 @@
 ///<reference path="./OpponentPlayer.ts"/>
 ///<reference path="./VirusNpc.ts"/>
 ///<reference path="./InfectedNpc.ts"/>
+///<reference path="./BlackHoleNpc.ts"/>
 ///<reference path="./networked/ServerPlayerUpdate.ts"/>
 ///<reference path="./networked/ClientInputStateUpdate.ts"/>
 ///<reference path="./networked/PlayerListChange.ts"/>
@@ -418,6 +419,9 @@ class GameClient extends GameEntity {
         }
         else if(message.type === "VirusNpc") {
             entity = new VirusNpc();
+        }
+        else if(message.type === "BlackHoleNpc"){
+            entity = new BlackHoleNpc();
         }
         else {
             console.log("Bad Type: " + message.type);
