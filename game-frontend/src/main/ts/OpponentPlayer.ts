@@ -133,7 +133,7 @@ class OpponentPlayer extends Player {
         //set the leg points
         let leftLegPoint: Point = this.transformedPoints[OpponentPlayer.leftLegTip];
         let rightLegPoint: Point = this.transformedPoints[OpponentPlayer.rightLegTip];
-        let legElongateAmount: number = 0;//TODO: OpponentPlayer.legElongateRatio * (Math.abs(this.velocity.getX()) + Math.abs(this.velocity.getY()));
+        let legElongateAmount: number = OpponentPlayer.legElongateRatio * (Math.abs(this.xVelocity) + Math.abs(this.yVelocity));
 
         leftLegPoint.addX(legElongateAmount);
         leftLegPoint.addY(legElongateAmount);

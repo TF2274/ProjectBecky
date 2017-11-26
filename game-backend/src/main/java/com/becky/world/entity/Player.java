@@ -2,12 +2,15 @@ package com.becky.world.entity;
 
 import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
+import com.becky.world.physics.CollisionMesh;
 import com.becky.world.physics.PlayerCollisionDetector;
 import com.becky.world.physics.WorldBorderCollisionDetector;
 import com.becky.world.weapon.DefaultGun;
 import com.becky.world.weapon.Gun;
 import com.becky.world.weapon.RailGun;
 import org.java_websocket.WebSocket;
+
+import java.awt.geom.Point2D;
 
 public class Player extends GameEntity {
     public static final float MAX_VELOCITY = 450.0f;
@@ -18,13 +21,14 @@ public class Player extends GameEntity {
     private final WebSocket connection;
     private final String authenticationString;
     private boolean usernameFinal = false;
+    private final PlayerCollisionMesh playerCollisionMesh;
 
     //player descriptors
     private int health = 100;
     private int score = 0;
 
     //player state information
-    private Gun playerGun = new DefaultGun(this);
+    private Gun playerGun = new RailGun(this);
     private boolean firingWeapon = false;
 
     //player update information
@@ -33,13 +37,14 @@ public class Player extends GameEntity {
     private String healthAffectedBy = "";
 
     public Player(final NewGameWorld gameWorld, final String playerUsername, final String authenticationString, final WebSocket connection) {
-        super(gameWorld);
+        super(gameWorld, new PlayerCollisionMesh());
         super.addPhysicsFilter(WorldBorderCollisionDetector.class);
         super.addPhysicsFilter(PlayerCollisionDetector.class);
         this.playerUsername = playerUsername;
         this.connection = connection;
         this.authenticationString = authenticationString;
         this.collisionRadius = 32;
+        this.playerCollisionMesh = (PlayerCollisionMesh)super.collisionMesh;
         super.maxVelocity = MAX_VELOCITY;
         super.deceleration = ACCELERATION;
     }
@@ -133,11 +138,47 @@ public class Player extends GameEntity {
     public void tick(final long elapsedTime) {
         tickShooting();
         super.tick(elapsedTime);
+        this.playerCollisionMesh.speedAdjust(super.getXVelocity(), super.getYVelocity());
     }
 
     private void tickShooting() {
         if(firingWeapon) {
             playerGun.fire();
+        }
+    }
+
+    /**
+     * This is a collision mesh class which accounts for the legs of the player ship moving
+     * inwards based on the ship's speed
+     */
+    private static class PlayerCollisionMesh extends CollisionMesh {
+        private static final Point2D.Float[] COLLISION_MESH = new Point2D.Float[] {
+            new Point2D.Float(0.0f, -32.0f),
+            new Point2D.Float(32.0f, 32.0f),
+            new Point2D.Float(0.0f, 14.0f),
+            new Point2D.Float(-32.0f, 32.0f),
+        };
+        private static final int[] COLLISION_INDICES = new int[] { 0, 2, 3, 0, 1, 2 };
+        private static final float LEG_ELONGATE_RATIO = 5.0f / Player.MAX_VELOCITY;
+
+        private PlayerCollisionMesh() {
+            super(COLLISION_MESH, COLLISION_INDICES);
+        }
+
+        /**
+         * Moves the local points for the leg tips inwards based on player speed.
+         * @param vX
+         * @param vY
+         */
+        public void speedAdjust(final float vX, final float vY) {
+            final Point2D.Float rightLegTip = super.localPoints[1];
+            final Point2D.Float leftLegTip = super.localPoints[3];
+            final float legElongateAmount = LEG_ELONGATE_RATIO * (Math.abs(vX) + Math.abs(vY));
+
+            rightLegTip.x -= legElongateAmount;
+            rightLegTip.y += legElongateAmount;
+            leftLegTip.x += legElongateAmount;
+            leftLegTip.y += legElongateAmount;
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.becky.world.entity;
 
 import com.becky.networking.message.EntityMessage;
+import com.becky.world.physics.CollisionMesh;
 import com.becky.world.physics.WorldBorderCollisionDetector;
 
 /**
@@ -8,7 +9,7 @@ import com.becky.world.physics.WorldBorderCollisionDetector;
  */
 public abstract class Bullet extends GameEntity {
     protected final Player owner;
-    protected final int damageAmount;
+    protected int damageAmount;
     protected float remainingHealth = 0.0f;
 
     protected Bullet(final Player owner,
@@ -18,7 +19,18 @@ public abstract class Bullet extends GameEntity {
                      final float yVelocity,
                      final float travelDistance,
                      final int damageAmount) {
-        super(owner.getGameWorld());
+        this(owner, xPosition, yPosition, xVelocity, yVelocity, travelDistance, damageAmount, null);
+    }
+
+    protected Bullet(final Player owner,
+                     final float xPosition,
+                     final float yPosition,
+                     final float xVelocity,
+                     final float yVelocity,
+                     final float travelDistance,
+                     final int damageAmount,
+                     final CollisionMesh collisionMesh) {
+        super(owner.getGameWorld(), collisionMesh);
         super.addPhysicsFilter(WorldBorderCollisionDetector.class);
         this.owner = owner;
         position.x = xPosition;
@@ -43,6 +55,14 @@ public abstract class Bullet extends GameEntity {
      */
     public int getDamage() {
         return this.damageAmount;
+    }
+
+    /**
+     * Sets the amount of damage done by this bullet.
+     * @param damage
+     */
+    public void setDamage(final int damage) {
+        this.damageAmount = damage;
     }
 
     /**

@@ -38,7 +38,7 @@ public class NewGameWorld implements Runnable {
         physicsFilters.add(new WorldBorderCollisionDetector(worldDimension.x, worldDimension.y));
         physicsFilters.add(new PlayerCollisionDetector(this));
         physicsFilters.add(new NpcCollisionDetector(this));
-        //initNpcTypes();
+        initNpcTypes();
     }
 
     public void start() {

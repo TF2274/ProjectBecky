@@ -14,7 +14,7 @@ public class DefaultBulletCollisionDetector implements PhysicsFilter, WorldEvent
     private final List<Npc> worldNpcs = new ArrayList<>();
     private final List<Player> worldPlayers = new ArrayList<>();
 
-    protected DefaultBulletCollisionDetector(final NewGameWorld gameWorld) {
+    public DefaultBulletCollisionDetector(final NewGameWorld gameWorld) {
         sortGameEntities(gameWorld.getAllGameEntities());
         gameWorld.addWorldEventListener(this);
     }
@@ -29,8 +29,15 @@ public class DefaultBulletCollisionDetector implements PhysicsFilter, WorldEvent
                 if(bullet.getOwner().equals(player)) {
                     continue;
                 }
-                player.setHealth(player.getHealth() - bullet.getDamage(), bullet.getOwner().getPlayerUsername());
-                bullet.setState(GameEntity.STATE_DEAD);
+                final int damage = bullet.getDamage();
+                final int health = player.getHealth();
+                player.setHealth(health - damage, bullet.getOwner().getPlayerUsername());
+                if(damage <= health) {
+                    bullet.setState(GameEntity.STATE_DEAD);
+                }
+                else {
+                    bullet.setDamage(damage - health);
+                }
                 bullet.getOwner().addScore(Math.max(500, player.getScore() / 10));
                 return;
             }
@@ -72,10 +79,31 @@ public class DefaultBulletCollisionDetector implements PhysicsFilter, WorldEvent
         }
     }
 
-    protected boolean isBulletColliding(final GameEntity entity, final Bullet bullet) {
+    private boolean isBulletColliding(final GameEntity entity, final Bullet bullet) {
         final float collisionDistance = entity.getCollisionRadius() + bullet.getCollisionRadius();
         final float delta = distance(entity.getXPosition(), entity.getYPosition(), bullet.getXPosition(), bullet.getYPosition());
-        return delta <= collisionDistance;
+        if(delta <= collisionDistance) {
+            //radii cross, therefore do checking with collision meshes
+            final CollisionMesh bulletMesh = bullet.getCollisionMesh();
+            final CollisionMesh entityMesh = entity.getCollisionMesh();
+            if(bulletMesh == null) {
+                if(entityMesh == null) {
+                    return true;
+                }
+                else {
+                    return entityMesh.pointsInRadius(bullet.getXPosition(), bullet.getYPosition(), bullet.getCollisionRadius());
+                }
+            }
+            else { //bulletMesh != null
+                if(entityMesh == null) {
+                    return bulletMesh.pointsInRadius(entity.getXPosition(), entity.getYPosition(), entity.getCollisionRadius());
+                }
+                else {
+                    return bulletMesh.isMeshCollidingWidth(entityMesh);
+                }
+            }
+        }
+        return false;
     }
 
     private float distance(final float x1, final float y1, final float x2, final float y2) {

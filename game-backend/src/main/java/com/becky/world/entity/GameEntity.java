@@ -3,6 +3,7 @@ package com.becky.world.entity;
 import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
 import com.becky.world.entity.npc.VirusNpc;
+import com.becky.world.physics.CollisionMesh;
 import com.becky.world.physics.PhysicsFilter;
 
 import java.awt.geom.Point2D;
@@ -35,15 +36,22 @@ public abstract class GameEntity {
 
     //collisions
     protected int collisionRadius;
+    protected final CollisionMesh collisionMesh;
+    private boolean meshTransformed = false;
 
     //used for physics filters
     private final List<Class<? extends PhysicsFilter>> filterApplies = new ArrayList<>();
 
     protected GameEntity(final NewGameWorld container) {
+        this(container, null);
+    }
+
+    protected GameEntity(final NewGameWorld container, final CollisionMesh collisionMesh) {
         entityId = entityCount;
         entityCount++;
         this.container = container;
         this.typeName = this.getClass().getSimpleName();
+        this.collisionMesh = collisionMesh;
     }
 
     public int getState() {
@@ -130,6 +138,7 @@ public abstract class GameEntity {
 
     public void tick(final long elapsedTime) {
         final float multiplier = elapsedTime / 1000.0f;
+        meshTransformed = false;
 
         //apply acceleration to the entity
         if(Math.abs(acceleration.x) < 0.1) {
@@ -189,7 +198,7 @@ public abstract class GameEntity {
     }
 
     public boolean doesPhysicsApply(final Class<? extends PhysicsFilter> physics) {
-        return this.filterApplies.contains(physics);
+        return this.state != STATE_DEAD && this.filterApplies.contains(physics);
     }
 
     public EntityMessage getUpdateMessage() {
@@ -205,6 +214,13 @@ public abstract class GameEntity {
         message.setType(this.typeName);
         message.setEntityId(this.entityId);
         return message;
+    }
+
+    public CollisionMesh getCollisionMesh() {
+        if(!meshTransformed && this.collisionMesh != null) {
+            this.collisionMesh.transformToWorldSpace(this.position.x, this.position.y, this.angles);
+        }
+        return this.collisionMesh;
     }
 
     protected void addPhysicsFilter(final Class<? extends PhysicsFilter> filter) {
