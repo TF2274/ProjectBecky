@@ -5,6 +5,7 @@ import com.becky.world.NewGameWorld;
 import com.becky.world.entity.npc.VirusNpc;
 import com.becky.world.physics.CollisionMesh;
 import com.becky.world.physics.PhysicsFilter;
+import com.becky.world.physics.WorldBorderCollisionDetector;
 
 import java.awt.geom.Point2D;
 import java.util.*;
@@ -52,6 +53,7 @@ public abstract class GameEntity {
         this.container = container;
         this.typeName = this.getClass().getSimpleName();
         this.collisionMesh = collisionMesh;
+        this.addPhysicsFilter(WorldBorderCollisionDetector.class);
     }
 
     public int getState() {

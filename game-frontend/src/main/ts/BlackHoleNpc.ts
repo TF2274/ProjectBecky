@@ -5,7 +5,7 @@
 
 class BlackHoleNpc extends Npc{
     private static max_velocity: number = 0.0;
-    static radius: number = 30;
+    static radius: number = 250;
 
     constructor(){
         super();
@@ -26,7 +26,7 @@ class BlackHoleNpc extends Npc{
         }
 
         context.beginPath();
-        context.ellipse(screenX, screenY, BlackHoleNpc.radius, BlackHoleNpc.radius, 0, 0, 2*Math.PI);
+        context.ellipse(screenX, screenY, BlackHoleNpc.radius - 5, BlackHoleNpc.radius - 5, 0, 0, 2*Math.PI);
         context.fillStyle = "#000000";
         context.fill();
         context.strokeStyle = "#5e5e5e";

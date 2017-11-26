@@ -5,7 +5,6 @@ import com.becky.world.NewGameWorld;
 import com.becky.world.physics.*;
 import com.becky.world.weapon.DefaultGun;
 import com.becky.world.weapon.Gun;
-import com.becky.world.weapon.RailGun;
 import org.java_websocket.WebSocket;
 
 import java.awt.geom.Point2D;
@@ -26,7 +25,7 @@ public class Player extends GameEntity {
     private int score = 0;
 
     //player state information
-    private Gun playerGun = new RailGun(this);
+    private Gun playerGun = new DefaultGun(this);
     private boolean firingWeapon = false;
 
     //player update information
@@ -36,7 +35,6 @@ public class Player extends GameEntity {
 
     public Player(final NewGameWorld gameWorld, final String playerUsername, final String authenticationString, final WebSocket connection) {
         super(gameWorld, new PlayerCollisionMesh());
-        super.addPhysicsFilter(WorldBorderCollisionDetector.class);
         super.addPhysicsFilter(PlayerCollisionDetector.class);
         this.playerUsername = playerUsername;
         this.connection = connection;

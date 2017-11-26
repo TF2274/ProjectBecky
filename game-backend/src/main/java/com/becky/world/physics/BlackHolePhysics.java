@@ -14,20 +14,17 @@ import java.util.List;
 public class BlackHolePhysics implements PhysicsFilter, WorldEventListener {
     private final List<Npc> npcs = new ArrayList<>();
     private final List<Player> players = new ArrayList<>();
-    private final List<BlackHoleNpc> blackHoles = new ArrayList<>();
     private static final float EFFECT_DISTANCE = 750.0f;
+    private static final float EFFECT_STRENGTH = 2.0f;
 
     public BlackHolePhysics(final NewGameWorld gameWorld) {
         gameWorld.addWorldEventListener(this);
         final List<GameEntity> gameEntities = gameWorld.getAllGameEntities();
         for (final GameEntity entity : gameEntities) {
-            if (entity instanceof BlackHoleNpc) {
-                this.blackHoles.remove(entity);
-            } else if (entity instanceof Player) {
-                this.players.remove((entity));
-            } else if (entity instanceof Npc) {
-                this.npcs.remove((entity));
-
+            if (entity instanceof Player) {
+                this.players.add((Player)entity);
+            } else if ((entity instanceof Npc) && !(entity instanceof BlackHoleNpc)) {
+                this.npcs.add((Npc)entity);
             }
         }
     }
@@ -37,6 +34,7 @@ public class BlackHolePhysics implements PhysicsFilter, WorldEventListener {
         if (!(gameEntity instanceof BlackHoleNpc)) {
             return;
         }
+
         for (final Npc npc : npcs) {
             changeAccel(gameEntity, npc);
             applyBlackHoleCollisionWithNpc(gameEntity, npc);
@@ -67,9 +65,9 @@ public class BlackHolePhysics implements PhysicsFilter, WorldEventListener {
     private void changeAccel(final GameEntity gameEntity, final GameEntity entity) {
         final float distance = MathUtils.distance(gameEntity, entity);
 
-        if (distance <= 500.0f) {
+        if (distance <= EFFECT_DISTANCE) {
             final float collisionAngle = MathUtils.getAngleBetweenEntities(gameEntity, entity);
-            final float accelerationIncrease = EFFECT_DISTANCE / distance;
+            final float accelerationIncrease = EFFECT_STRENGTH * EFFECT_DISTANCE / distance;
             final float sin = (float) StrictMath.sin(collisionAngle);
             final float cos = (float) StrictMath.cos(collisionAngle);
 
@@ -85,23 +83,19 @@ public class BlackHolePhysics implements PhysicsFilter, WorldEventListener {
 
     @Override
     public void onGameEntityRemoved(final NewGameWorld gameWorld, final GameEntity entity) {
-        if (entity instanceof BlackHoleNpc) {
-            this.blackHoles.remove(entity);
-        } else if (entity instanceof Player) {
-            this.players.remove((entity));
+        if (entity instanceof Player) {
+            this.players.remove(entity);
         } else if (entity instanceof Npc) {
-            this.npcs.remove((entity));
+            this.npcs.remove(entity);
         }
     }
 
     @Override
     public void onGameEntityAdded(final NewGameWorld gameWorld, final GameEntity entity) {
-        if (entity instanceof BlackHoleNpc) {
-            this.blackHoles.add((BlackHoleNpc) entity);
-        } else if (entity instanceof Player) {
-            this.players.add((Player) entity);
-        } else if (entity instanceof Npc) {
-            this.npcs.add((Npc) entity);
+        if (entity instanceof Player) {
+            this.players.add((Player)entity);
+        } else if ((entity instanceof Npc) && !(entity instanceof BlackHoleNpc)) {
+            this.npcs.add((Npc)entity);
         }
     }
 }

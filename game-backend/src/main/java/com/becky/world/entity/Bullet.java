@@ -2,7 +2,6 @@ package com.becky.world.entity;
 
 import com.becky.networking.message.EntityMessage;
 import com.becky.world.physics.CollisionMesh;
-import com.becky.world.physics.WorldBorderCollisionDetector;
 
 /**
  * Defines a type of bullet shot by a player
@@ -31,7 +30,6 @@ public abstract class Bullet extends GameEntity {
                      final int damageAmount,
                      final CollisionMesh collisionMesh) {
         super(owner.getGameWorld(), collisionMesh);
-        super.addPhysicsFilter(WorldBorderCollisionDetector.class);
         this.owner = owner;
         position.x = xPosition;
         position.y = yPosition;
