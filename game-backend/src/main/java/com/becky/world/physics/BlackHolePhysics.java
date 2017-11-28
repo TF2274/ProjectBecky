@@ -84,18 +84,26 @@ public class BlackHolePhysics implements PhysicsFilter, WorldEventListener {
     @Override
     public void onGameEntityRemoved(final NewGameWorld gameWorld, final GameEntity entity) {
         if (entity instanceof Player) {
-            this.players.remove(entity);
+            synchronized (this.players) {
+                this.players.remove(entity);
+            }
         } else if (entity instanceof Npc) {
-            this.npcs.remove(entity);
+            synchronized (this.npcs) {
+                this.npcs.remove(entity);
+            }
         }
     }
 
     @Override
     public void onGameEntityAdded(final NewGameWorld gameWorld, final GameEntity entity) {
         if (entity instanceof Player) {
-            this.players.add((Player)entity);
+            synchronized (this.players) {
+                this.players.add((Player)entity);
+            }
         } else if ((entity instanceof Npc) && !(entity instanceof BlackHoleNpc)) {
-            this.npcs.add((Npc)entity);
+            synchronized (this.npcs) {
+                this.npcs.add((Npc)entity);
+            }
         }
     }
 }

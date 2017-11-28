@@ -6,7 +6,7 @@ import com.becky.world.physics.DefaultBulletCollisionDetector;
 import java.awt.geom.Point2D;
 
 public class RailBullet extends Bullet {
-    private static final float TRAVEL_DISTANCE = 800.0f;
+    private static final float TRAVEL_DISTANCE = 1600.0f;
     private static final int DAMAGE_FACTOR = 20;
     private static final Point2D.Float[] COLLISION_POINTS = new Point2D.Float[] {
         new Point2D.Float(-32.0f, 0.0f),
