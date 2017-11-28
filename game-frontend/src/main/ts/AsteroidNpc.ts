@@ -1,7 +1,7 @@
 class AsteroidNpc extends Npc
 {
     private static max_velocity: number = 50.0;
-    static radius: number = 50;
+    static radius: number = 32;
 
     constructor(){
         super();
@@ -9,8 +9,6 @@ class AsteroidNpc extends Npc
 
     public setAngle(angle: number): void {/* Do nothing */}
 
-    public update(elapsedTime: number): void{
-    }
 
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void{
 
@@ -24,6 +22,12 @@ class AsteroidNpc extends Npc
         }
 
         // Draw the NPC
+
+        // let img = document.getElementById("asteroid") as HTMLImageElement;
+        //
+        // //draw the bottom part
+        // context.drawImage(img, this.xPosition, this.yPosition);
+
         context.beginPath();
         context.ellipse(screenX, screenY, AsteroidNpc.radius - 5, AsteroidNpc.radius - 5, 0, 0, 2*Math.PI);
         context.fillStyle = "#000000";

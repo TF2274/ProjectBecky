@@ -10,23 +10,25 @@ import java.util.Random;
 
 public class AsteroidNpc extends Npc
 {
+    private static final float RAND_LIMIT = 20;
     private final Random random = new Random();
 
     protected AsteroidNpc(final NewGameWorld gameWorld)
     {
         super(gameWorld);
         super.maxVelocity = 50.0f;
-        super.npcHealth = 1;
+        super.npcHealth = 10;
         super.pointsValue = 200;
         super.collisionRadius = 32;
         super.addPhysicsFilter(NpcCollisionDetector.class);
+
     }
 
     @Override
     public void tick(final long elapsedTime) {
 
-        super.setXAcceleration(random.nextInt(10));
-        super.setYAcceleration(random.nextInt(10));
+        super.setXAcceleration(random.nextInt((int)RAND_LIMIT)-(RAND_LIMIT/2));
+        super.setYAcceleration(random.nextInt((int)RAND_LIMIT)-(RAND_LIMIT/2));
 
         super.tick(elapsedTime);
     }
