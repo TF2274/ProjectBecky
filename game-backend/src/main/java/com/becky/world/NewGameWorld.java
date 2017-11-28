@@ -72,6 +72,10 @@ public class NewGameWorld implements Runnable {
             if(frameNumber % 300 == 0) {//every 300 frames (15 seconds)
                 this.transmitHighscores();
             }
+            if(frameNumber % MAX_TPS == 0) { //once per second send ping to everyone
+                this.transmitPingsToAllPlayers();
+            }
+
             //see if we need to sleep
             //sleep if necessary
             frameEnd = System.currentTimeMillis();
@@ -107,6 +111,10 @@ public class NewGameWorld implements Runnable {
         playerMessagingUtility.prepareMessages(entities);
         final List<Player> allPlayers = getAllPlayers();
         playerMessagingUtility.transmitMessages(allPlayers);
+    }
+
+    private void transmitPingsToAllPlayers() {
+        messageTransmitter.transmitPingToClients(this.getAllPlayers());
     }
 
     private void removeDeadEntities() {

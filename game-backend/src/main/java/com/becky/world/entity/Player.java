@@ -19,6 +19,8 @@ public class Player extends GameEntity {
     private final String authenticationString;
     private boolean usernameFinal = false;
     private final PlayerCollisionMesh playerCollisionMesh;
+    private long latency = 0;
+    private long lastPingTimestamp = 0;
 
     //player descriptors
     private int health = 100;
@@ -69,6 +71,29 @@ public class Player extends GameEntity {
         this.health = Math.max(health, 0);
         this.healthAffectedBy = attackerUsername == null ? "" : attackerUsername;
         this.playerHealthUpdated = true;
+    }
+
+    public void setLastPingTimestamp(final long timestamp) {
+        this.lastPingTimestamp = timestamp;
+    }
+
+    public long getLastPingTimestamp() {
+        return this.lastPingTimestamp;
+    }
+
+    public void setLatency(final long latency) {
+        //to smooth out lag spikes, account for other timing anomalies, or to render player
+        //cheating attempts useless, only allow latency to change by +- 15 ms
+        if(latency < this.latency) {
+            this.latency = Math.max(latency, latency - 15);
+        }
+        else {
+            this.latency = Math.min(latency, latency + 15);
+        }
+    }
+
+    public long getLatency() {
+        return this.latency;
     }
 
     public void setUsernameFinal() {

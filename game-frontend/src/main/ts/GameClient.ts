@@ -244,6 +244,12 @@ class GameClient extends GameEntity {
                 this.lagCompensator.setLatency(latency);
             }
         }
+        //message is a server ping
+        else if(message.substring(0, 5) === "SPING") {
+            //if message is modified in any way when the server sends an SPING message,
+            //then the server will reject it as it could be a sign of cheating.
+            this.connection.send(message);
+        }
         //message is a high score update
         else if((object = HighscoreInfo.getValidObjectFromJson(message)) !== null) {
             let high_scores: HighscoreInfo = object as HighscoreInfo;
