@@ -169,9 +169,9 @@ class GameUI implements Renderable {
         //draw username by getting metrics
         if(this.usernameMetrics === null) {
             this.usernameMetrics = context.measureText(this.player.getUsername());
-            this.usernameDrawX = midX - this.usernameMetrics.width/2;
             this.usernameDrawY = 32;
         }
+        this.usernameDrawX = midX - this.usernameMetrics.width/2;
         context.fillText(this.player.getUsername(), this.usernameDrawX, this.usernameDrawY);
 
         //draw score info

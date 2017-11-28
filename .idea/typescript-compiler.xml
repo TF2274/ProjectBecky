@@ -2,7 +2,7 @@
 <project version="4">
   <component name="TypeScriptCompiler">
     <option name="isCompilerEnabled" value="true" />
-    <option name="scopeName" value="Module 'game-frontend'" />
+    <option name="scopeName" value="All Places" />
     <option name="hasOutDirectory" value="true" />
     <option name="outDirectory" value="game-frontend/src/site/js" />
     <option name="showAllErrors" value="true" />

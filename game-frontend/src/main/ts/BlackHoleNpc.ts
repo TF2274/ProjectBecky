@@ -5,7 +5,7 @@
 
 class BlackHoleNpc extends Npc{
     private static max_velocity: number = 0.0;
-    static radius: number = 250;
+    static radius: number = 125;
 
     constructor(){
         super();
