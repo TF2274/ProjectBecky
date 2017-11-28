@@ -29,16 +29,28 @@ public class DefaultBulletCollisionDetector implements PhysicsFilter, WorldEvent
                 if(bullet.getOwner().equals(player)) {
                     continue;
                 }
+                //damage is how much health the bullet will remove from the entity it collided with
+                //health is the amount of health the entity has remaining
                 final int damage = bullet.getDamage();
                 final int health = player.getHealth();
+                //setting health will automatically set the player state if necessary
                 player.setHealth(health - damage, bullet.getOwner().getPlayerUsername());
+
+                //only add points if player is dead
+                if(player.getState() == GameEntity.STATE_DEAD) {
+                    bullet.getOwner().addScore(Math.max(500, player.getScore() / 10));
+                }
+
+                //if the bullet can cause more damage than the entity has health, then the bullet
+                //damage should be reduced without destroying the bullet.
+                //if the bullet damage is <= entity health, then the bullet and entity are killed
                 if(damage <= health) {
                     bullet.setState(GameEntity.STATE_DEAD);
                 }
                 else {
+                    //this means the bullet still can continue damaging things after reducing entity health
                     bullet.setDamage(damage - health);
                 }
-                bullet.getOwner().addScore(Math.max(500, player.getScore() / 10));
                 return;
             }
         }
@@ -46,10 +58,27 @@ public class DefaultBulletCollisionDetector implements PhysicsFilter, WorldEvent
         //check collision with NPCs
         for(final Npc npc: worldNpcs) {
             if(isBulletColliding(npc, bullet)) {
-                npc.setNpcHealth(npc.getNpcHealth() - bullet.getDamage());
-                bullet.setState(GameEntity.STATE_DEAD);
-                if(npc.getNpcHealth() == 0) {
+                //damage is how much health the bullet will remove from the entity it collided with
+                //health is the amount of health the entity has remaining
+                final int damage = bullet.getDamage();
+                final int health = npc.getNpcHealth();
+                //setting health will automatically set the player state if necessary
+                npc.setNpcHealth(health - damage);
+
+                //only add points if npc is dead
+                if(npc.getState() == GameEntity.STATE_DEAD) {
                     bullet.getOwner().addScore(npc.getNpcPointsValue());
+                }
+
+                //if the bullet can cause more damage than the entity has health, then the bullet
+                //damage should be reduced without destroying the bullet.
+                //if the bullet damage is <= entity health, then the bullet and entity are killed
+                if(damage <= health) {
+                    bullet.setState(GameEntity.STATE_DEAD);
+                }
+                else {
+                    //this means the bullet still can continue damaging things after reducing entity health
+                    bullet.setDamage(damage - health);
                 }
                 return;
             }
