@@ -2,9 +2,11 @@ class AsteroidNpc extends Npc
 {
     private static max_velocity: number = 50.0;
     static radius: number = 32;
+    private img = new Image();
 
     constructor(){
         super();
+        this.img.src = "asteroid.png";
     }
 
     public setAngle(angle: number): void {/* Do nothing */}
@@ -21,21 +23,19 @@ class AsteroidNpc extends Npc
             return; //off screen, don't draw
         }
 
-        // Draw the NPC
+        // Draw the NPC image
+        context.drawImage(this.img, screenX, screenY);
 
-        // let img = document.getElementById("asteroid") as HTMLImageElement;
-        //
-        // //draw the bottom part
-        // context.drawImage(img, this.xPosition, this.yPosition);
+        // context.beginPath();
+        // context.ellipse(screenX, screenY, AsteroidNpc.radius - 5, AsteroidNpc.radius - 5, 0, 0, 2*Math.PI);
+        // context.fillStyle = "#000000";
+        // context.fill();
+        // context.strokeStyle = "#5e5e5e";
+        // context.lineWidth = 5;
+        // context.stroke();
+        // context.closePath();
 
-        context.beginPath();
-        context.ellipse(screenX, screenY, AsteroidNpc.radius - 5, AsteroidNpc.radius - 5, 0, 0, 2*Math.PI);
-        context.fillStyle = "#000000";
-        context.fill();
-        context.strokeStyle = "#5e5e5e";
-        context.lineWidth = 5;
-        context.stroke();
-        context.closePath();
+
 
     }
 }
