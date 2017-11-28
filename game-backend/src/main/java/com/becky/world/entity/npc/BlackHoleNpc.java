@@ -17,8 +17,8 @@ public class BlackHoleNpc extends Npc {
     public BlackHoleNpc(final NewGameWorld world) {
         super(world);
         super.maxVelocity = 0.0f;
-        super.npcHealth = 1500;
-        super.pointsValue = 750;
+        super.npcHealth = 1;
+        super.pointsValue = 50;
         super.collisionRadius = 32;
         super.addPhysicsFilter(BlackHolePhysics.class);
         super.addPhysicsFilter(NpcCollisionDetector.class);

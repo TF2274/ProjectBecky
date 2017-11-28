@@ -423,6 +423,9 @@ class GameClient extends GameEntity {
         else if(message.type === "BlackHoleNpc"){
             entity = new BlackHoleNpc();
         }
+        else if(message.type === "AsteroidNpc"){
+            entity = new AsteroidNpc();
+        }
         else {
             console.log("Bad Type: " + message.type);
             return null;
