@@ -27,6 +27,13 @@ public class AsteroidNpc extends Npc
     @Override
     public void tick(final long elapsedTime) {
 
+        // Check if asteroid is on world border and remove the entity
+        if( (this.getXPosition() < 1) || (this.getXPosition() > this.getGameWorld().getWorldWidth()-1) ||
+                (this.getYPosition() < 1) || (this.getYPosition() > this.getGameWorld().getWorldHeight()-1))
+        {
+            this.setNpcHealth(0);
+        }
+
         super.setXAcceleration(random.nextInt((int)RAND_LIMIT)-(RAND_LIMIT/2));
         super.setYAcceleration(random.nextInt((int)RAND_LIMIT)-(RAND_LIMIT/2));
 

@@ -34,8 +34,5 @@ class AsteroidNpc extends Npc
         // context.lineWidth = 5;
         // context.stroke();
         // context.closePath();
-
-
-
     }
 }
