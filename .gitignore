@@ -1,4 +1,6 @@
 *.xml
 *.iml
 *.js
-*.js.map
+*.js.
+*.class
+*.DS_Store
