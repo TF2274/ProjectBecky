@@ -95,14 +95,34 @@ public class SimpleServer extends WebSocketServer {
             if (message.startsWith(ClientInputStateUpdate.class.getSimpleName())) {
                 handlePlayerInputStateMessage(message);
             }
-            //player has requested a username change
-            else if (message.startsWith(UsernameChangeRequest.class.getSimpleName())) {
-                handlePlayerUsernameChangeRequest(message, webSocket);
-            }
+            //Client is sending a ping request to the server
             else if(message.startsWith("PING:")) {
                 if(webSocket.isOpen()){
                     webSocket.send(message);
                 }
+            }
+            //Client is replying to the server with a ping response
+            else if(message.startsWith("SPING")) {
+                final long timestamp = Long.parseLong(message.substring(5));
+                final Player player = gameInstance.getPlayerByConnection(webSocket);
+                //check to make sure the message was not modified
+                //The transmitter sets the timestamp automatically.
+                if(player.getLastPingTimestamp() == timestamp) {
+                    final long currentTime = System.currentTimeMillis();
+                    //currentTime - timestamp is the time it took for the server to send the client the ping and then
+                    //for the ping to make it here and for this line of code to execute.
+                    //This is roughly equal to the message transmit time.
+                    //Dividing by two is close to the time it takes for the message to travel 1 direction.
+                    final long latency = (currentTime - timestamp) / 2;
+                    player.setLatency(latency);
+                }
+                else {
+                    System.out.println("Client has responded with invalid ping response. Potential tampering? Player: " + player.getPlayerUsername());
+                }
+            }
+            //player has requested a username change
+            else if (message.startsWith(UsernameChangeRequest.class.getSimpleName())) {
+                handlePlayerUsernameChangeRequest(message, webSocket);
             }
         } catch(final RuntimeException ex) {
             System.out.println("OnMessage Error: " + ex.getMessage());
@@ -152,6 +172,12 @@ public class SimpleServer extends WebSocketServer {
     }
 
     private void updatePlayerState(final Player player, final ClientInputStateUpdate stateChange) {
+        //rewind the player by their latency (since the message we received was sent by the player "latency"
+        //millis ago, it means we need to rewind the player to the point in time the user actually performed
+        //an action before applying the changes). After applying the changes, the player can be "fast-forwarded"
+        //by "latency" millis. This will simulate the server applying the player control changes at the exact time.
+        player.tick(-player.getLatency());
+
         player.setXAcceleration(0.0f);
         player.setYAcceleration(0.0f);
         if(stateChange.isMovingUp()) {
@@ -169,6 +195,9 @@ public class SimpleServer extends WebSocketServer {
 
         player.setFiringWeapon(stateChange.isShooting());
         player.setAngles(stateChange.getAngle());
+
+        //player state has been changed. Now fast forward the player by latency millis
+        player.tick(player.getLatency());
     }
 
     private Player validatePlayerCredentials(final String username, final String authToken) {

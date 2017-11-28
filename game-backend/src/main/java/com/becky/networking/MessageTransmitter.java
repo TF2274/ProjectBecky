@@ -1,7 +1,9 @@
 package com.becky.networking;
 
 import com.becky.world.entity.Player;
+import org.java_websocket.WebSocket;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,5 +20,20 @@ public class MessageTransmitter {
                 client.getConnection().send(message);
             }
         });
+    }
+
+    public void transmitPingToClients(final List<Player> players) {
+        for(final Player player: players) {
+            threadPool.submit(() -> {
+                final WebSocket connection = player.getConnection();
+                if(!connection.isOpen()) {
+                    return;
+                }
+                final long timestamp = System.currentTimeMillis();
+                final String message = "SPING" + timestamp;
+                player.setLastPingTimestamp(timestamp);
+                connection.send(message);
+            });
+        }
     }
 }
