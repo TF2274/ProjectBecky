@@ -31,19 +31,22 @@ public class BlackHolePhysics implements PhysicsFilter, WorldEventListener {
 
     @Override
     public void apply(final GameEntity gameEntity) {
-        if (!(gameEntity instanceof BlackHoleNpc)) {
-            return;
+        synchronized (npcs) {
+            for (final Npc npc : npcs) {
+                if(isLooselyClose(gameEntity, npc)) {
+                    changeAccel(gameEntity, npc);
+                    applyBlackHoleCollisionWithNpc(gameEntity, npc);
+                }
+            }
         }
-
-        for (final Npc npc : npcs) {
-            changeAccel(gameEntity, npc);
-            applyBlackHoleCollisionWithNpc(gameEntity, npc);
+        synchronized (players) {
+            for (final Player player : players) {
+                if(isLooselyClose(gameEntity, player)) {
+                    changeAccel(gameEntity, player);
+                    applyBlackHoleCollisionWithPlayer(gameEntity, player);
+                }
+            }
         }
-        for (final Player player : players) {
-            changeAccel(gameEntity, player);
-            applyBlackHoleCollisionWithPlayer(gameEntity, player);
-        }
-
     }
 
     private void applyBlackHoleCollisionWithNpc(final GameEntity entity, final Npc npc) {
@@ -74,6 +77,18 @@ public class BlackHolePhysics implements PhysicsFilter, WorldEventListener {
             entity.setXAcceleration(entity.getXAcceleration() + 1000.0f * cos * accelerationIncrease);
             entity.setYAcceleration(entity.getYAcceleration() + 1000.0f * sin * accelerationIncrease);
         }
+    }
+
+    /**
+     * Does a loose check to see if the game entity is within the bounds of the black hole.
+     * This is a cheaper calculation than distance formula, but is only good as a primary check.
+     * @param blackhole
+     * @param other
+     * @return
+     */
+    private boolean isLooselyClose(final GameEntity blackhole, final GameEntity other) {
+        return Math.abs(blackhole.getXPosition() - other.getXPosition()) < EFFECT_DISTANCE &&
+               Math.abs(blackhole.getYPosition() - other.getYPosition()) < EFFECT_DISTANCE;
     }
 
     @Override

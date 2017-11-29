@@ -19,9 +19,10 @@ abstract class GameEntity implements Updateable, Renderable {
     protected yAcceleration: number = 0;
     protected angles: number = 0;
     protected deceleration: number = 0;
-
     protected entityId: number = -1;
     protected max_velocity: number = 0;
+
+    protected physicsFilters: Set<number> = new Set<number>();
 
     constructor() {
     }
@@ -36,6 +37,10 @@ abstract class GameEntity implements Updateable, Renderable {
         this.xVelocity = message.XVelocity;
         this.yVelocity = message.YVelocity;
         this.angles = message.angle;
+    }
+
+    public physicsApplies(type: number): boolean {
+        return this.physicsFilters.contains(type);
     }
 
     /**

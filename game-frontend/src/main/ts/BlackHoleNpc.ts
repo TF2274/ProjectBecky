@@ -9,6 +9,7 @@ class BlackHoleNpc extends Npc{
 
     constructor(){
         super();
+        this.physicsFilters.add(BlackHolePhysicsFilter.TYPE);
     }
 
     public setAngle(angle: number): void {/* Do nothing */}

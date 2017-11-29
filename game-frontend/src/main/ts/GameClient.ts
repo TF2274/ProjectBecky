@@ -42,6 +42,7 @@ class GameClient extends GameEntity {
     private numFrames: number = 0;
     private lagCompensator: LagCompensator = new LagCompensator(30);
     private playerId: number;
+    private physicsFilters: Set<PhysicsFilter> = new Set<PhysicsFilter>();
 
     /**
      * Creates a new GameClient instance.
@@ -119,6 +120,9 @@ class GameClient extends GameEntity {
         for(let i = 0; i < this.entities.length; i++) {
             this.entities.get(i).update(elapsedTime);
         }
+
+        //update physics
+        this.processPhysics();
     }
 
     private windowResized(): boolean {
@@ -162,6 +166,18 @@ class GameClient extends GameEntity {
         this.connection.send("ClientInputStateUpdate:" + JSON.stringify(state));
     }
 
+    private processPhysics(): void {
+        for(let p = 0; p < this.physicsFilters.length; p++) {
+            let filter: PhysicsFilter = this.physicsFilters.get(p);
+            for(let i = 0; i < this.entities.length; i++) {
+                let entity: GameEntity = this.entities.get(i);
+                if(entity.physicsApplies(filter.getType())) {
+                    filter.apply(entity);
+                }
+            }
+        }
+    }
+
     /**
      * All steps to initialize the client game go here
      */
@@ -170,6 +186,7 @@ class GameClient extends GameEntity {
         this.initRenderer();
         this.initSocketListeners()
         this.initInput();
+        this.initPhysics();
     }
 
     private initPlayer(): void {
@@ -212,6 +229,10 @@ class GameClient extends GameEntity {
         this.connection.onmessage = (event: MessageEvent) => {
             this.handleMessageFromServer(event.data);
         }
+    }
+
+    private initPhysics(): void {
+        this.physicsFilters.add(new BlackHolePhysicsFilter());
     }
 
     private handleConnectionError = (message: string) => {
