@@ -310,6 +310,9 @@ class GameClient extends GameEntity {
         else {
             //entity is not null. Remove it if the server says the entity died
             if(message.state === EntityMessage.STATE_DEAD) {
+                for(let i = 0; i < this.physicsFilters.length; i++) {
+                    this.physicsFilters.get(i).onEntityRemoved(entity);
+                }
                 this.renderer.removeRenderable(entity as any);
                 this.entities.remove(entity);
 
@@ -468,6 +471,9 @@ class GameClient extends GameEntity {
         entity.setEntityId(message.entityId);
         this.lagCompensator.compensateEntityMessage(entity, message);
 
+        for(let i = 0; i < this.physicsFilters.length; i++) {
+            this.physicsFilters.get(i).onEntityCreated(entity);
+        }
         return entity;
     }
 

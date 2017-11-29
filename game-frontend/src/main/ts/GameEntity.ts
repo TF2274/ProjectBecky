@@ -22,7 +22,7 @@ abstract class GameEntity implements Updateable, Renderable {
     protected entityId: number = -1;
     protected max_velocity: number = 0;
 
-    protected physicsFilters: Set<number> = new Set<number>();
+    protected physicsFilterTypes: Set<number> = new Set<number>();
 
     constructor() {
     }
@@ -40,7 +40,7 @@ abstract class GameEntity implements Updateable, Renderable {
     }
 
     public physicsApplies(type: number): boolean {
-        return this.physicsFilters.contains(type);
+        return this.physicsFilterTypes.contains(type);
     }
 
     /**
