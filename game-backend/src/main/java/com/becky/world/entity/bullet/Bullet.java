@@ -1,6 +1,8 @@
-package com.becky.world.entity;
+package com.becky.world.entity.bullet;
 
 import com.becky.networking.message.EntityMessage;
+import com.becky.world.entity.GameEntity;
+import com.becky.world.entity.Player;
 import com.becky.world.physics.CollisionMesh;
 
 /**

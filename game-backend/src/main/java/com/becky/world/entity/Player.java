@@ -3,6 +3,8 @@ package com.becky.world.entity;
 import com.becky.networking.message.EntityMessage;
 import com.becky.world.NewGameWorld;
 import com.becky.world.physics.*;
+import com.becky.world.weapon.DefaultGun;
+import com.becky.world.weapon.RailGun;
 import com.becky.world.weapon.ShotGun;
 import com.becky.world.weapon.Gun;
 import org.java_websocket.WebSocket;
@@ -27,7 +29,7 @@ public class Player extends GameEntity {
     private int score = 0;
 
     //player state information
-    private Gun playerGun = new ShotGun(this);
+    private Gun playerGun = new DefaultGun(this);
     private boolean firingWeapon = false;
 
     //player update information

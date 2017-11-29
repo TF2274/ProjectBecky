@@ -35,6 +35,7 @@ public class NewGameWorld implements Runnable {
         physicsFilters.add(new PlayerCollisionDetector(this));
         physicsFilters.add(new NpcCollisionDetector(this));
         physicsFilters.add(new BlackHolePhysics(this));
+        physicsFilters.add(new PowerupPhysics(this));
         initNpcTypes();
     }
 

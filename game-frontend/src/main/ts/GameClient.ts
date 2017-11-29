@@ -14,6 +14,7 @@
 ///<reference path="./networked/PointsUpdate.ts"/>
 ///<reference path="./networked/PlayerHealthMessage.ts"/>
 ///<reference path="./networked/HighscoreInfo.ts"/>
+///<reference path="./HealthPowerup.ts"/>
 ///<reference path="./Bullet.ts"/>
 ///<reference path="./GameUI.ts"/>
 
@@ -450,8 +451,14 @@ class GameClient extends GameEntity {
         else if(message.type === "BlackHoleNpc"){
             entity = new BlackHoleNpc();
         }
+        else if(message.type === "HealthPowerup"){
+            entity = new HealthPowerup();
+        }
         else if(message.type === "AsteroidNpc"){
             entity = new AsteroidNpc();
+        }
+        else if(message.type === "RandomGunPowerup"){
+            entity = new RandomGunPowerup();
         }
         else {
             console.log("Bad Type: " + message.type);

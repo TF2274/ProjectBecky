@@ -2,7 +2,7 @@ package com.becky.world.physics;
 
 import com.becky.world.NewGameWorld;
 import com.becky.world.WorldEventListener;
-import com.becky.world.entity.Bullet;
+import com.becky.world.entity.bullet.Bullet;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
 import com.becky.world.entity.npc.Npc;

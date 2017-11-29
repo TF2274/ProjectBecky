@@ -1,7 +1,7 @@
 package com.becky.world.weapon;
 
-import com.becky.world.entity.Bullet;
-import com.becky.world.entity.DefaultBullet;
+import com.becky.world.entity.bullet.Bullet;
+import com.becky.world.entity.bullet.DefaultBullet;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
 

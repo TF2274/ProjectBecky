@@ -1,9 +1,9 @@
 package com.becky.world.weapon;
 
-import com.becky.world.entity.Bullet;
+import com.becky.world.entity.bullet.Bullet;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
-import com.becky.world.entity.RailBullet;
+import com.becky.world.entity.bullet.RailBullet;
 
 public class RailGun extends Gun {
     private static final byte RATE_OF_FIRE = 1;

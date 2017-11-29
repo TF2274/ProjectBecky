@@ -1,5 +1,6 @@
-package com.becky.world.entity;
+package com.becky.world.entity.bullet;
 
+import com.becky.world.entity.Player;
 import com.becky.world.physics.CollisionMesh;
 import com.becky.world.physics.DefaultBulletCollisionDetector;
 

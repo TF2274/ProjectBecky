@@ -1,9 +1,9 @@
 package com.becky.world.weapon;
 
-import com.becky.world.entity.Bullet;
-import com.becky.world.entity.DefaultBullet;
 import com.becky.world.entity.GameEntity;
 import com.becky.world.entity.Player;
+import com.becky.world.entity.bullet.Bullet;
+import com.becky.world.entity.bullet.DefaultBullet;
 
 public class ShotGun extends Gun {
     //config values
@@ -12,7 +12,7 @@ public class ShotGun extends Gun {
     private static final byte NUM_BULLETS_PER_SHOT = 10;
 
     //derived values
-    private static final float ANGLE_INCREMENT = (float)((Math.PI/4.0f) / NUM_BULLETS_PER_SHOT);
+    private static final float ANGLE_INCREMENT = (float) ((Math.PI / 4.0f) / NUM_BULLETS_PER_SHOT);
 
     public ShotGun(final Player weilder) {
         super(RATE_OF_FIRE, weilder);
@@ -20,10 +20,10 @@ public class ShotGun extends Gun {
 
     @Override
     public void fire() {
-        if(readyToFire()) {
-            final float startAngles = weilder.getAngles() - (float)Math.PI/8.0f;
-            final float endAngles = startAngles + (float)Math.PI/4.0f;
-            for(float angles = startAngles; angles < endAngles; angles += ANGLE_INCREMENT) {
+        if (readyToFire()) {
+            final float startAngles = weilder.getAngles() - (float) Math.PI / 8.0f;
+            final float endAngles = startAngles + (float) Math.PI / 4.0f;
+            for (float angles = startAngles; angles < endAngles; angles += ANGLE_INCREMENT) {
                 fireBullet(angles);
             }
             super.fire();
