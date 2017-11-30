@@ -95,7 +95,7 @@ class GameClient extends GameEntity {
         if(this.numFrames % 4 === 0) {
             this.sendInputState();
         }
-        if(this.numFrames % GameClient.FRAMES_PER_SECOND == 0) {//every 60 frames/once per second
+        if((this.numFrames % GameClient.FRAMES_PER_SECOND == 0) && (this.connection.readyState === this.connection.OPEN)) {//every 60 frames/once per second
             this.connection.send("PING:" + Date.now());
         }
         this.numFrames++;
@@ -324,6 +324,11 @@ class GameClient extends GameEntity {
                 //use the lag compensator to update the entity since the entity still exists
                 //this.lagCompensator.compensateEntityMessage(entity, message);
                 this.lagCompensator.compensateEntityMessage(entity, message);
+                if((this.player.getEntityId() === message.entityId) && (message.health === 0))
+                {
+                    this.connection.close();
+
+                }
             }
         }
     }

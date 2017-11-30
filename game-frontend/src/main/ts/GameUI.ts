@@ -3,6 +3,8 @@
 ///<reference path="./collections/Set.ts"/>
 ///<reference path="./Player.ts"/>
 
+import DateTimeFormat = Intl.DateTimeFormat;
+
 /**
  * Created by davidmcfall on 10/3/17.
  */
@@ -38,6 +40,8 @@ class GameUI implements Renderable {
     private usernameDrawX: number;
     private usernameDrawY: number;
 
+    private timeOfDeath: number = null;
+
     constructor(viewWidth: number, viewHeight: number) {
         this.player = null;
         this.leaderBoardList = null;
@@ -70,21 +74,66 @@ class GameUI implements Renderable {
     public draw(context: CanvasRenderingContext2D, screenOrigin: Point): void {
         // Make sure player is not null before attempting to draw
         if (this.player !== null) {
-            // Draws the health bar
-            this.drawHealthBar(context);
+            if(this.player.getHealth() !== 0)
+            {
+                // Draws the health bar
+                this.drawHealthBar(context);
 
-            // Draws the score
-            this.drawUsernameAndScore(context);
-        }
+                // Draws the score
+                this.drawUsernameAndScore(context);
 
-        // Make sure list is not null before attempting to draw
-        if (this.leaderBoardList !== null) {
-            // Make sure the list is not empty before drawing
-            if (!this.leaderBoardList.empty()) {
-                // Draws the leader board
-                this.drawLeaderBoard(context);
+                // Make sure list is not null before attempting to draw
+                if (this.leaderBoardList !== null) {
+                    // Make sure the list is not empty before drawing
+                    if (!this.leaderBoardList.empty()) {
+                        // Draws the leader board
+                        this.drawLeaderBoard(context);
+                    }
+                }
+            }
+            else
+            {
+                // Draw the death screen
+                this.drawDeathScreen(context);
+
+                if (this.timeOfDeath === null)
+                {
+                    this.timeOfDeath = 200;
+                }
+                else
+                {
+                    if(this.timeOfDeath !== 0)
+                    {
+                        this.timeOfDeath--;
+                    }
+                    else
+                    {
+                        location.reload();
+                    }
+                }
+
             }
         }
+
+
+    }
+
+    public drawDeathScreen(context: CanvasRenderingContext2D): void {
+        // Draw background of leader board
+        context.fillStyle = "rgba(0,0,0,.8)";
+        context.fillRect(0, 0, context.canvas.width, context.canvas.width);
+
+
+        // Write the text
+        let deathScreenText_1: string = "KILLED BY";
+        let deathScreenText_2: string = "----------------------";
+
+        let deathScreenMetrics_1: TextMetrics = context.measureText("KILLED BY");
+        let deathScreenMetrics_2: TextMetrics = context.measureText(this.player.getUsername());
+
+        context.fillStyle = "white";
+        context.fillText(deathScreenText_1, (context.canvas.width/2)-(deathScreenMetrics_1.width/2), (context.canvas.height/2)-40);
+        context.fillText(this.player.getUsername(), (context.canvas.width/2)-(deathScreenMetrics_2.width/2), (context.canvas.height/2)-20);
     }
 
     /**
