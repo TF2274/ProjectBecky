@@ -41,6 +41,7 @@ class GameUI implements Renderable {
     private usernameDrawY: number;
 
     private timeOfDeath: number = null;
+    private pageReloaded: boolean = false;
 
     constructor(viewWidth: number, viewHeight: number) {
         this.player = null;
@@ -106,9 +107,11 @@ class GameUI implements Renderable {
                     {
                         this.timeOfDeath--;
                     }
-                    else
-                    {
-                        location.reload();
+                    else {
+                        if (this.pageReloaded === false) {
+                            this.pageReloaded = true;
+                            location.reload();
+                        }
                     }
                 }
 
